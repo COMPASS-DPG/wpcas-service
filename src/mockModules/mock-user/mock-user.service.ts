@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateMockUserDto } from "./dto/create-mock-user.dto";
 import { UpdateMockUserDto } from "./dto/update-mock-user.dto";
 import { PrismaService } from "src/prisma/prisma.service";
@@ -16,11 +16,13 @@ export class MockUserService {
   }
 
   public async findOne(id: number) {
-    return await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: {
         id,
       },
     });
+    if (!user) throw new NotFoundException(`User with id #${id} not found`);
+    return user;
   }
 
   public async update(id: number, updateMockUserDto: UpdateMockUserDto) {

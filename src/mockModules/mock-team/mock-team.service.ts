@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateMockTeamDto } from "./dto/create-mock-team.dto";
 import { UpdateMockTeamDto } from "./dto/update-mock-team.dto";
 import { PrismaService } from "src/prisma/prisma.service";
@@ -18,11 +18,13 @@ export class MockTeamService {
   }
 
   public async findOne(id: number) {
-    return await this.prisma.team.findUnique({
+    const team = await this.prisma.team.findUnique({
       where: {
         id,
       },
     });
+    if (!team) throw new NotFoundException(`Team with id #${id} not found`);
+    return team;
   }
 
   public async update(id: number, updateMockTeamDto: UpdateMockTeamDto) {

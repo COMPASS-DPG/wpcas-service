@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   HttpStatus,
+  Res,
+  ParseIntPipe,
 } from "@nestjs/common";
 import { MockUserService } from "./mock-user.service";
 import { CreateMockUserDto } from "./dto/create-mock-user.dto";
@@ -22,8 +24,17 @@ export class MockUserController {
   @Post()
   @ApiOperation({ summary: "create new mock user" })
   @ApiResponse({ status: HttpStatus.CREATED, type: ResponseMockUserDto })
-  create(@Body() createMockUserDto: CreateMockUserDto) {
-    return this.mockUserService.create(createMockUserDto);
+  async create(@Body() createMockUserDto: CreateMockUserDto, @Res() res) {
+    try {
+      const user = await this.mockUserService.create(createMockUserDto);
+      return res
+        .status(HttpStatus.OK)
+        .json({ data: user, message: "Successfully done" });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.meta.cause });
+    }
   }
 
   @Get()
@@ -33,31 +44,68 @@ export class MockUserController {
     type: ResponseMockUserDto,
     isArray: true,
   })
-  findAll() {
-    return this.mockUserService.findAll();
+  async findAll(@Res() res) {
+    try {
+      const user = await this.mockUserService.findAll();
+      return res
+        .status(HttpStatus.OK)
+        .json({ data: user, message: "Successfully done" });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.meta.cause });
+    }
   }
 
   @Get(":id")
   @ApiOperation({ summary: "get mock user by id" })
   @ApiResponse({ status: HttpStatus.CREATED, type: ResponseMockUserDto })
-  findOne(@Param("id") id: string) {
-    return this.mockUserService.findOne(+id);
+  async findOne(@Param("id", ParseIntPipe) id: number, @Res() res) {
+    try {
+      const user = await this.mockUserService.findOne(id);
+      return res
+        .status(HttpStatus.OK)
+        .json({ data: user, message: "Successfully done" });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
+    }
   }
 
   @Patch(":id")
   @ApiOperation({ summary: "update mock user by id" })
   @ApiResponse({ status: HttpStatus.CREATED, type: ResponseMockUserDto })
-  update(
-    @Param("id") id: string,
-    @Body() updateMockUserDto: UpdateMockUserDto
+  async update(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() updateMockUserDto: UpdateMockUserDto,
+    @Res() res
   ) {
-    return this.mockUserService.update(+id, updateMockUserDto);
+    try {
+      const user = await this.mockUserService.update(id, updateMockUserDto);
+      return res
+        .status(HttpStatus.OK)
+        .json({ data: user, message: "Successfully done" });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.meta.cause });
+    }
   }
 
   @Delete(":id")
   @ApiOperation({ summary: "delete mock user by id" })
   @ApiResponse({ status: HttpStatus.CREATED, type: ResponseMockUserDto })
-  remove(@Param("id") id: string) {
-    return this.mockUserService.remove(+id);
+  async remove(@Param("id", ParseIntPipe) id: number, @Res() res) {
+    try {
+      const user = await this.mockUserService.remove(id);
+      return res
+        .status(HttpStatus.OK)
+        .json({ data: user, message: "Successfully done" });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.meta.cause });
+    }
   }
 }

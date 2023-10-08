@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   HttpStatus,
+  ParseIntPipe,
+  Res,
 } from "@nestjs/common";
 import { MockLevelService } from "./mock-level.service";
 import { CreateMockLevelDto } from "./dto/create-mock-level.dto";
@@ -22,8 +24,17 @@ export class MockLevelController {
   @Post()
   @ApiOperation({ summary: "create new mock level" })
   @ApiResponse({ status: HttpStatus.CREATED, type: ResponseMockLevelDto })
-  async create(@Body() createMockLevelDto: CreateMockLevelDto) {
-    return await this.mockLevelService.create(createMockLevelDto);
+  async create(@Res() res, @Body() createMockLevelDto: CreateMockLevelDto) {
+    try {
+      const level = await this.mockLevelService.create(createMockLevelDto);
+      return res
+        .status(HttpStatus.OK)
+        .json({ data: level, message: "Successfully done" });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.meta.cause });
+    }
   }
 
   @Get()
@@ -33,31 +44,68 @@ export class MockLevelController {
     type: ResponseMockLevelDto,
     isArray: true,
   })
-  async findAll() {
-    return await this.mockLevelService.findAll();
+  async findAll(@Res() res) {
+    try {
+      const level = await this.mockLevelService.findAll();
+      return res
+        .status(HttpStatus.OK)
+        .json({ data: level, message: "Successfully done" });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.meta.cause });
+    }
   }
 
   @Get(":id")
   @ApiOperation({ summary: "get mock level by id" })
   @ApiResponse({ status: HttpStatus.OK, type: ResponseMockLevelDto })
-  async findOne(@Param("id") id: string) {
-    return await this.mockLevelService.findOne(+id);
+  async findOne(@Res() res, @Param("id", ParseIntPipe) id: number) {
+    try {
+      const level = await this.mockLevelService.findOne(id);
+      return res
+        .status(HttpStatus.OK)
+        .json({ data: level, message: "Successfully done" });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
+    }
   }
 
   @Patch(":id")
   @ApiOperation({ summary: "update mock level by id" })
   @ApiResponse({ status: HttpStatus.OK, type: ResponseMockLevelDto })
   async update(
-    @Param("id") id: string,
+    @Res() res,
+    @Param("id", ParseIntPipe) id: number,
     @Body() updateMockLevelDto: UpdateMockLevelDto
   ) {
-    return await this.mockLevelService.update(+id, updateMockLevelDto);
+    try {
+      const level = await this.mockLevelService.update(id, updateMockLevelDto);
+      return res
+        .status(HttpStatus.OK)
+        .json({ data: level, message: "Successfully done" });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.meta.cause });
+    }
   }
 
   @Delete(":id")
   @ApiOperation({ summary: "delete mock level by id" })
   @ApiResponse({ status: HttpStatus.OK, type: ResponseMockLevelDto })
-  async remove(@Param("id") id: string) {
-    return await this.mockLevelService.remove(+id);
+  async remove(@Res() res, @Param("id", ParseIntPipe) id: number) {
+    try {
+      const level = await this.mockLevelService.remove(id);
+      return res
+        .status(HttpStatus.OK)
+        .json({ data: level, message: "Successfully done" });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.meta.cause });
+    }
   }
 }
