@@ -15,6 +15,9 @@ async function bootstrap() {
   // Create a NestJS application instance
   const app = await NestFactory.create(AppModule, { cors: true });
 
+  // Enable Cross-Origin Resource Sharing (CORS)
+  app.enableCors();
+
   // Enable using the container for class-validator
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
@@ -39,7 +42,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe(validationOptions));
 
   // Configure global serialization using class-transformer
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  // app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   // Configure Swagger documentation
   const swaggerConfig = new DocumentBuilder()

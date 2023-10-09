@@ -111,7 +111,7 @@ model User {
   id             Int           @id @default(autoincrement())
   email          String        @unique
   role           UserRolesEnum
-  username       String
+  userName       String
   password       String
   profilePicture String?
   createdAt      DateTime      @default(now())
@@ -127,10 +127,11 @@ model User {
 
 model Level {
   id          Int     @id @default(autoincrement())
-  lable       String
+  label       String
   description String?
   users       User[]
 }
+
 model Team {
   id          Int     @id @default(autoincrement())
   name        String
