@@ -4,14 +4,18 @@ import {
   Post,
   Body,
   Patch,
-  Param,
   Delete,
   Logger,
   HttpStatus,
   Res,
+  Query,
+  Param,
 } from "@nestjs/common";
 import { SurveyConfigService } from "./survey-config.service";
-import { CreateSurveyConfigDto } from "./dto/create-survey-config.dto";
+import {
+  CreateSurveyConfigDto,
+  SurveyConfigFilterDto,
+} from "./dto/create-survey-config.dto";
 import { UpdateSurveyConfigDto } from "./dto/update-survey-config.dto";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ResponseSurveyConfigDto } from "./dto/response-survey-config.dto";
@@ -49,14 +53,102 @@ export class SurveyConfigController {
         data: createdSurveyConfig,
       });
     } catch (error) {
-       this.logger.error(
-        `Failed to create new survey config.`,
-        error,
-      );
+      this.logger.error(`Failed to create new survey config.`, error);
 
       // Return an error response
       return res.status(HttpStatus.CREATED).json({
         message: `Failed to create new survey config.`,
+      });
+    }
+  }
+
+  // Get all survey config
+  @Get()
+  @ApiOperation({ summary: "Get all Survey config" }) // Api operation for swagger
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: ResponseSurveyConfigDto,
+    isArray: true,
+  }) // Api response for Swagger.
+  async getAllSurveyConfig(@Res() res, @Query() filter: SurveyConfigFilterDto) {
+    try {
+      this.logger.log(`Initiated fetching all the survey config.`);
+      const surveyConfigs = await this.surveyConfigService.getAllSurveyConfig(
+        filter
+      );
+      this.logger.log(`Successfully fetched survey config`);
+
+      return res.status(HttpStatus.OK).json({
+        message: "Successfully fetched all survey config.",
+        data: surveyConfigs,
+      });
+    } catch (error) {
+      this.logger.error(`Failed to fetch survey configs`, error);
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: "Failed to fetch survey configs" });
+    }
+  }
+
+  // Update the survey config
+  @Patch("/update/:id")
+  @ApiOperation({ summary: "Update the survey config by ID" }) // Api operation for swagger
+  @ApiResponse({ status: HttpStatus.OK, type: ResponseSurveyConfigDto }) // Api operation for swagger
+  async updateSurveyConfigById(
+    @Res() res,
+    @Param("id") id: number,
+    @Body() updateSurveyConfigDto: UpdateSurveyConfigDto
+  ) {
+    try {
+      this.logger.log(`Initiated updating the survey config for id #${id}`);
+      const updateSurveyConfig =
+        await this.surveyConfigService.updateSurveyConfigById(
+          +id,
+          updateSurveyConfigDto
+        );
+      this.logger.log(`Successfully updated survey config for id #${id}`);
+      return res.status(HttpStatus.OK).json({
+        message: `Successfully updated survey config for id #${id}`,
+        data: updateSurveyConfig,
+      });
+    } catch (error) {
+      this.logger.error(`Failed to update survey config for id #${id}`, error);
+
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message:
+          error.message || `Failed to update survey config for id #${id}`,
+      });
+    }
+  }
+
+  // Delete the survey config
+  @Delete("/delete/:id")
+  @ApiOperation({ summary: "Delete the survey config by Id" }) // Api operation for swagger
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: ResponseSurveyConfigDto,
+  })
+  async deleteSurveyConfigById(@Res() res, @Param("id") id: number) {
+    try {
+      this.logger.log(
+        `Initiating deleting of a survey config with an id ${id}`
+      );
+
+      const deletedSurveyConfig = await this.surveyConfigService.deleteSurveyConfig(+id)
+      
+      return res.status(HttpStatus.OK).json({
+        message: `Successfully deleted survey config for id #${id}`,
+        data: deletedSurveyConfig,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to delete survey config for id #${id}. Error: ${JSON.stringify(
+          error
+        )}`
+      );
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message:
+          error.message || `Failed to delete survey config for id #${id}`,
       });
     }
   }

@@ -3,15 +3,18 @@ import { IsDate, IsInt, IsNotEmpty, IsOptional, IsString, Min } from "class-vali
 export class CreateSurveyConfigDto {
   // maximum number of question for the survey config
   @IsNotEmpty()
+  @IsNotEmpty()
   @IsInt()
   maxQuestions: number;
 
   // start time for the survey config
   @IsNotEmpty()
+  @IsNotEmpty()
   @IsDate()
   startTime: Date;
 
   // end time for the survey config
+  @IsNotEmpty()
   @IsNotEmpty()
   @IsDate()
   endTime: Date;
@@ -21,18 +24,21 @@ export class CreateSurveyConfigDto {
 export class SurveyConfigFilterDto {
   // Optional maxQuestions filter validate that its a number
   @IsOptional()
+  @IsNotEmpty()
   @IsInt()
   maxQuestions?: number;
 
   //Optional startTime filter validate that its valid date-time value
   @IsOptional()
+  @IsNotEmpty()
   @IsDate()
-  startTime: Date;
+  startTime?: Date;
 
   //Optional endTime filter validate that its valid date-time value.
   @IsOptional()
+  @IsNotEmpty()
   @IsDate()
-  endTime: Date;
+  endTime?: Date;
 
   // Optional limit for pagination, validate that it's an integer.
   @IsOptional()
