@@ -16,7 +16,7 @@ import { UpdateMockLevelDto } from "./dto/update-mock-level.dto";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ResponseMockLevelDto } from "./dto/response-mock-level.dto";
 
-@Controller("mockUserService/level")
+@Controller("level")
 @ApiTags("mockUserService/level")
 export class MockLevelController {
   constructor(private readonly mockLevelService: MockLevelService) {}

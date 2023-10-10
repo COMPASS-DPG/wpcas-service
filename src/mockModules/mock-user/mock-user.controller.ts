@@ -16,7 +16,7 @@ import { UpdateMockUserDto } from "./dto/update-mock-user.dto";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ResponseMockUserDto } from "./dto/response-mock-user.dto";
 
-@Controller("mockUserService/user")
+@Controller("user")
 @ApiTags("mockUserService/user")
 export class MockUserController {
   constructor(private readonly mockUserService: MockUserService) {}
