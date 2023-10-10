@@ -39,7 +39,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe(validationOptions));
 
   // Configure global serialization using class-transformer
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  // app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   // Configure Swagger documentation
   const swaggerConfig = new DocumentBuilder()

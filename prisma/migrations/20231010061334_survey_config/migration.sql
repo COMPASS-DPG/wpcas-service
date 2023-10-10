@@ -60,8 +60,8 @@ CREATE TABLE "survey_form" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
     "questionsJson" JSONB NOT NULL,
-    "status" "SurveyStatusEnum" NOT NULL,
     "surveyConfigId" INTEGER NOT NULL,
+    "status" "SurveyStatusEnum" NOT NULL,
 
     CONSTRAINT "survey_form_pkey" PRIMARY KEY ("id")
 );
@@ -177,7 +177,16 @@ CREATE TABLE "_CompetencyToCompetencyLevel" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "UserMetadata_userId_key" ON "UserMetadata"("userId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "question_bank_competencyLevelId_question_key" ON "question_bank"("competencyLevelId", "question");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "survey_form_surveyConfigId_key" ON "survey_form"("surveyConfigId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "response_tracker_surveyFormId_assesseeId_assessorId_key" ON "response_tracker"("surveyFormId", "assesseeId", "assessorId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
