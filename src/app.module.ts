@@ -4,9 +4,7 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { PrismaModule } from "./prisma/prisma.module";
 import { PrismaService } from "./prisma/prisma.service";
-import { MockUserModule } from "./mockModules/mock-user/mock-user.module";
-import { MockLevelModule } from "./mockModules/mock-level/mock-level.module";
-import { MockTeamModule } from "./mockModules/mock-team/mock-team.module";
+import { MockModule } from "./mockModules/mock.module";
 
 @Module({
   imports: [
@@ -14,9 +12,7 @@ import { MockTeamModule } from "./mockModules/mock-team/mock-team.module";
       isGlobal: true,
     }),
     PrismaModule,
-    MockUserModule,
-    MockLevelModule,
-    MockTeamModule,
+    MockModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

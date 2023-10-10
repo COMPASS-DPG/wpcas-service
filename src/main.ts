@@ -75,7 +75,15 @@ async function bootstrap() {
   });
 
   // Start the NestJS application, listening on the specified port or defaulting to 4010
-  await app.listen(configService.get<number>("APP_PORT") || 4010);
+  const PORT = configService.get<number>("APP_PORT") || 4010;
+  await app.listen(PORT, () => {
+    console.log(
+      `
+        🔌 REST API ready at http://localhost:${PORT}/
+        💻 Swagger UI ready at http://localhost:${PORT}/${SWAGGER_CONSTANTS.PATH}
+      `
+    );
+  });
 }
 
 // Call the bootstrap function to start the application

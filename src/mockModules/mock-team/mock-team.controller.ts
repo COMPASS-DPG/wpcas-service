@@ -15,7 +15,7 @@ import { CreateMockTeamDto } from "./dto/create-mock-team.dto";
 import { UpdateMockTeamDto } from "./dto/update-mock-team.dto";
 import { ApiTags } from "@nestjs/swagger";
 
-@Controller("mockUserService/team")
+@Controller("team")
 @ApiTags("mockUserService/team")
 export class MockTeamController {
   constructor(private readonly mockTeamService: MockTeamService) {}
