@@ -10,7 +10,7 @@ import { PrismaService } from "src/prisma/prisma.service";
 export class SurveyConfigService {
   constructor(private prisma: PrismaService) {}
   async createSurveyConfig(createSurveyConfigDto: CreateSurveyConfigDto) {
-    // create new survey
+    // create new survey config
     const newConfig = await this.prisma.surveyConfig.create({
       data: createSurveyConfigDto,
     });
