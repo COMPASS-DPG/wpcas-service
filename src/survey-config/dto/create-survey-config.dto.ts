@@ -40,10 +40,10 @@ export class SurveyConfigFilterDto {
   // Optional limit for pagination, validate that it's an integer.
   @IsOptional()
   @IsInt()
-  limit?: number;
+  limit?: number = 10;
 
   // Optional offset for pagination, validate that it's an integer.
   @IsOptional()
   @IsInt()
-  offset?: number;
+  offset?: number = 0;
 }
