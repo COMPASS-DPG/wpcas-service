@@ -3,18 +3,15 @@ import { IsDate, IsInt, IsNotEmpty, IsOptional, IsString, Min } from "class-vali
 export class CreateSurveyConfigDto {
   // maximum number of question for the survey config
   @IsNotEmpty()
-  @IsNotEmpty()
   @IsInt()
   maxQuestions: number;
 
   // start time for the survey config
   @IsNotEmpty()
-  @IsNotEmpty()
   @IsDate()
   startTime: Date;
 
   // end time for the survey config
-  @IsNotEmpty()
   @IsNotEmpty()
   @IsDate()
   endTime: Date;
