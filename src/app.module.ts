@@ -5,6 +5,7 @@ import { AppService } from "./app.service";
 import { PrismaModule } from "./prisma/prisma.module";
 import { PrismaService } from "./prisma/prisma.service";
 import { SurveyConfigModule } from './survey-config/survey-config.module';
+import { SurveyParameterModule } from './survey-parameter/survey-parameter.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { SurveyConfigModule } from './survey-config/survey-config.module';
     }),
     PrismaModule,
     SurveyConfigModule,
+    SurveyParameterModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
