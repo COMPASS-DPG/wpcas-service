@@ -1,8 +1,13 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CreateCompetencyDto, UpdateCompetencyDto } from "./dto";
 import { MockCompetencyLevelService } from "../mock-competency-level/mock-competency-level.service";
 import { CreateCompetencyLevelDto } from "../mock-competency-level/dto";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 @Injectable()
 export class MockCompetencyService {
@@ -25,9 +30,20 @@ export class MockCompetencyService {
       where: {
         id,
       },
-      include: {
-        competencyLevels: true,
-        roles: true,
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        roles: {
+          select: {
+            role: true,
+          },
+        },
+        competencyLevels: {
+          select: {
+            competencyLevel: true,
+          },
+        },
       },
     });
     if (!competency)
@@ -69,7 +85,7 @@ export class MockCompetencyService {
         competencyId: competency.id,
         competencyLevelId: competencyLevel.id,
       },
-      include: {
+      select: {
         competency: true,
         competencyLevel: true,
       },
@@ -81,18 +97,36 @@ export class MockCompetencyService {
     competencyId: number,
     createCompetencyLevel: CreateCompetencyLevelDto
   ) {
-    const competency = await this.findCompetencyById(competencyId);
-
-    const competencyLevel =
-      await this.competencyLevelService.createCompetencyLevel(
-        createCompetencyLevel
-      );
-
-    const connection = await this.addExistingCompetencyLevelToCompetency(
-      competency.id,
-      competencyLevel.id
-    );
-
-    return connection;
+    return this.prisma.competency.update({
+      where: {
+        id: competencyId,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        competencyLevels: {
+          orderBy: {
+            competencyLevel: {
+              createdAt: "desc",
+            },
+          },
+          select: {
+            competencyLevel: true,
+          },
+        },
+      },
+      data: {
+        competencyLevels: {
+          create: {
+            competencyLevel: {
+              create: {
+                ...createCompetencyLevel,
+              },
+            },
+          },
+        },
+      },
+    });
   }
 }

@@ -164,9 +164,9 @@ model Competency {
 }
 
 model RoleToCompetency {
-  role         Role       @relation(fields: [roleId], references: [id])
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
   roleId       Int
-  competency   Competency @relation(fields: [competencyId], references: [id])
+  competency   Competency @relation(fields: [competencyId], references: [id], onDelete: Cascade)
   competencyId Int
 
   @@id([roleId, competencyId])
@@ -184,9 +184,9 @@ model CompetencyLevel {
 }
 
 model CompetencyToCompetencyLevel {
-  competency        Competency      @relation(fields: [competencyId], references: [id])
+  competency        Competency      @relation(fields: [competencyId], references: [id], onDelete: Cascade)
   competencyId      Int
-  competencyLevel   CompetencyLevel @relation(fields: [competencyLevelId], references: [id])
+  competencyLevel   CompetencyLevel @relation(fields: [competencyLevelId], references: [id], onDelete: Cascade)
   competencyLevelId Int
 
   @@id([competencyId, competencyLevelId])

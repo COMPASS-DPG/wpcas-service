@@ -1,8 +1,13 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CreateMockRoleDto, UpdateMockRoleDto } from "./dto";
 import { MockCompetencyService } from "../mock-competency/mock-competency.service";
 import { CreateCompetencyDto } from "../mock-competency/dto";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 @Injectable()
 export class MockRoleService {
@@ -25,12 +30,14 @@ export class MockRoleService {
       where: {
         id,
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        description: true,
         competencies: {
-          include:{
+          select: {
             competency: true,
-            role: false
-          }
+          },
         },
       },
     });
@@ -71,10 +78,10 @@ export class MockRoleService {
         roleId: role.id,
         competencyId: competency.id,
       },
-      include:{
+      select: {
         role: true,
-        competency: true
-      }
+        competency: true,
+      },
     });
     return connection;
   }
@@ -83,12 +90,36 @@ export class MockRoleService {
     roleId: number,
     createCompetencyDto: CreateCompetencyDto
   ) {
-    const role = await this.findRoleById(roleId);
-
-    const competency = await this.competency.createCompetency(createCompetencyDto);
-
-    const connection = await this.addExistingCompetencyToRole(role.id, competency.id);
-    
-    return connection;
+    return this.prisma.role.update({
+      where: {
+        id: roleId,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        competencies: {
+          orderBy: {
+            competency: {
+              createdAt: "desc",
+            },
+          },
+          select: {
+            competency: true,
+          },
+        },
+      },
+      data: {
+        competencies: {
+          create: {
+            competency: {
+              create: {
+                ...createCompetencyDto,
+              },
+            },
+          },
+        },
+      },
+    });
   }
 }

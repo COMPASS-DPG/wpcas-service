@@ -11,7 +11,12 @@ import {
   Res,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { CreateCompetencyDto, UpdateCompetencyDto } from "./dto";
+import {
+  CreateCompetencyDto,
+  ResponseAddCompetencyLevelToCompetency,
+  ResponseCompetencyDto,
+  UpdateCompetencyDto,
+} from "./dto";
 import { MockCompetencyService } from "./mock-competency.service";
 import { CreateCompetencyLevelDto } from "../mock-competency-level/dto";
 
@@ -22,7 +27,7 @@ export class MockCompetencyController {
 
   @Post()
   @ApiOperation({ summary: "create new mock competency" })
-  @ApiResponse({ status: HttpStatus.CREATED })
+  @ApiResponse({ status: HttpStatus.CREATED, type: ResponseCompetencyDto })
   async createCompetency(
     @Res() res,
     @Body() createCompetencyDto: CreateCompetencyDto
@@ -31,12 +36,10 @@ export class MockCompetencyController {
       const competency = await this.competencyService.createCompetency(
         createCompetencyDto
       );
-      return res
-        .status(HttpStatus.OK)
-        .json({
-          data: competency,
-          message: "Competency successfully created.",
-        });
+      return res.status(HttpStatus.OK).json({
+        data: competency,
+        message: "Competency successfully created.",
+      });
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -46,16 +49,18 @@ export class MockCompetencyController {
 
   @Get()
   @ApiOperation({ summary: "fetch all mock competencies" })
-  @ApiResponse({ status: HttpStatus.CREATED })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: ResponseCompetencyDto,
+    isArray: true,
+  })
   async getAllCompetencies(@Res() res) {
     try {
       const competency = await this.competencyService.findAllCompetencies();
-      return res
-        .status(HttpStatus.OK)
-        .json({
-          data: competency,
-          message: "Competency successfully created.",
-        });
+      return res.status(HttpStatus.OK).json({
+        data: competency,
+        message: "Competencies successfully fetched.",
+      });
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -65,16 +70,14 @@ export class MockCompetencyController {
 
   @Get(":id")
   @ApiOperation({ summary: "get mock competency by id" })
-  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.OK, type: ResponseCompetencyDto })
   async findOneCompetency(@Res() res, @Param("id", ParseIntPipe) id: number) {
     try {
       const competency = await this.competencyService.findCompetencyById(id);
-      return res
-        .status(HttpStatus.OK)
-        .json({
-          data: competency,
-          message: "Competency successfully fetched.",
-        });
+      return res.status(HttpStatus.OK).json({
+        data: competency,
+        message: "Competency successfully fetched.",
+      });
     } catch (error) {
       return res
         .status(error.response.statusCode ?? HttpStatus.INTERNAL_SERVER_ERROR)
@@ -84,7 +87,7 @@ export class MockCompetencyController {
 
   @Patch(":id")
   @ApiOperation({ summary: "update mock competency by id" })
-  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.OK, type: ResponseCompetencyDto })
   async updateCompetency(
     @Res() res,
     @Param("id", ParseIntPipe) id: number,
@@ -95,12 +98,10 @@ export class MockCompetencyController {
         id,
         updateCompetencyDto
       );
-      return res
-        .status(HttpStatus.OK)
-        .json({
-          data: competency,
-          message: "Competency successfully updated.",
-        });
+      return res.status(HttpStatus.OK).json({
+        data: competency,
+        message: "Competency successfully updated.",
+      });
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -110,16 +111,14 @@ export class MockCompetencyController {
 
   @Delete(":id")
   @ApiOperation({ summary: "delete mock competency by id" })
-  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.OK, type: ResponseCompetencyDto, })
   async removeCompetency(@Res() res, @Param("id", ParseIntPipe) id: number) {
     try {
       const competency = await this.competencyService.removeCompetency(id);
-      return res
-        .status(HttpStatus.OK)
-        .json({
-          data: competency,
-          message: "Competency successfully deleted.",
-        });
+      return res.status(HttpStatus.OK).json({
+        data: competency,
+        message: "Competency successfully deleted.",
+      });
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -129,7 +128,7 @@ export class MockCompetencyController {
 
   @Post("addExistingCompetencyLevelToCompetency/:id")
   @ApiOperation({ summary: "add competency level to competency" })
-  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.OK, type: ResponseAddCompetencyLevelToCompetency })
   async addExistingCompetencyLevelToCompetency(
     @Res() res,
     @Param("id", ParseIntPipe) id: number,
@@ -141,12 +140,10 @@ export class MockCompetencyController {
           id,
           competencyLevel.competencyLevelId
         );
-      return res
-        .status(HttpStatus.OK)
-        .json({
-          data: competency,
-          message: "Competency successfully deleted.",
-        });
+      return res.status(HttpStatus.OK).json({
+        data: competency,
+        message: "Competency successfully deleted.",
+      });
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -156,7 +153,7 @@ export class MockCompetencyController {
 
   @Post("addNewCompetencyLevelToCompetency/:id")
   @ApiOperation({ summary: "create and add competency level to competency" })
-  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({ status: HttpStatus.OK, type: ResponseCompetencyDto })
   async addNewCompetencyLevelToCompetency(
     @Res() res,
     @Param("id", ParseIntPipe) id: number,
@@ -168,12 +165,10 @@ export class MockCompetencyController {
           id,
           competencyLevel
         );
-      return res
-        .status(HttpStatus.OK)
-        .json({
-          data: competency,
-          message: "Competency successfully deleted.",
-        });
+      return res.status(HttpStatus.OK).json({
+        data: competency,
+        message: "Competency successfully deleted.",
+      });
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)

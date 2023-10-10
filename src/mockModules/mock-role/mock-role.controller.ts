@@ -11,7 +11,7 @@ import {
   Res,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { CreateMockRoleDto, ResponseMockRoleDto, UpdateMockRoleDto } from "./dto";
+import { CreateMockRoleDto, ResponseAddCompetencyToRoleDto, ResponseMockRoleDto, UpdateMockRoleDto } from "./dto";
 import { MockRoleService } from "./mock-role.service";
 import { CreateCompetencyDto } from "../mock-competency/dto";
 
@@ -113,7 +113,7 @@ export class MockRoleController {
 
   @Post("addExistingCompetencyToRole/:id")
   @ApiOperation({ summary: "add competency to role" })
-  @ApiResponse({ status: HttpStatus.CREATED, type: ResponseMockRoleDto })
+  @ApiResponse({ status: HttpStatus.CREATED, type: ResponseAddCompetencyToRoleDto })
   async addExistingCompetencyToRole(
     @Res() res,
     @Param("id", ParseIntPipe) id: number,
@@ -139,7 +139,7 @@ export class MockRoleController {
 
   @Post("addNewCompetencyToRole/:id")
   @ApiOperation({ summary: "create and add competency to role" })
-  @ApiResponse({ status: HttpStatus.CREATED })
+  @ApiResponse({ status: HttpStatus.CREATED, type: ResponseMockRoleDto })
   async addNewCompetencyToRole(
     @Res() res,
     @Param("id", ParseIntPipe) id: number,
@@ -151,12 +151,12 @@ export class MockRoleController {
         .status(HttpStatus.OK)
         .json({
           data: connection,
-          message: `Successfully added competency with id #${connection.competency.id} to Role with id #${id}.`,
+          message: `Successfully added competency with id # to Role with id #${id}.`,
         });
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: error.message });
+        .json({ message: error.meta.cause });
     }
   }
 }
