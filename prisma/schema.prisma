@@ -13,7 +13,7 @@ datasource db {
 // Here goes models
 model UserMetadata {
   id            Int      @id @default(autoincrement())
-  userId        Int
+  userId        Int      @unique()
   teamId        Int
   isNewEmployee Boolean
   createdAt     DateTime @default(now())
@@ -34,11 +34,11 @@ model QuestionBank {
 }
 
 model SurveyConfig {
-  id           Int          @id @default(autoincrement())
+  id           Int         @id @default(autoincrement())
   maxQuestions Int
   startTime    DateTime
   endTime      DateTime
-  SurveyForm   SurveyForm[]
+  surveyForm   SurveyForm?
 
   @@map("survey_config")
 }
@@ -56,9 +56,9 @@ model SurveyForm {
   id              Int               @id @default(autoincrement())
   userId          Int
   questionsJson   Json
+  surveyConfigId  Int               @unique() // Add this field for the one-to-one relation
   status          SurveyStatusEnum
   surveyConfig    SurveyConfig      @relation(fields: [surveyConfigId], references: [id])
-  surveyConfigId  Int
   ResponseTracker ResponseTracker[]
   SurveyScore     SurveyScore[]
 
@@ -74,6 +74,7 @@ model ResponseTracker {
   responseJson Json?
   status       ResponseTrackerStatusEnum
 
+  @@unique([surveyFormId, assesseeId, assessorId])
   @@map("response_tracker")
 }
 
@@ -131,6 +132,7 @@ model Level {
   description String?
   users       User[]
 }
+
 model Team {
   id          Int     @id @default(autoincrement())
   name        String
