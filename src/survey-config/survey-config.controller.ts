@@ -48,13 +48,12 @@ export class SurveyConfigController {
       // Log the successful creation of the survey config
       this.logger.log(`Successfully created the new survey config.`);
 
-      // Return a success response with the created request data
+      // Return a success response with the created survey config data
       return res.status(HttpStatus.CREATED).json({
         message: "Survey config created successfully",
         data: createdSurveyConfig,
       });
     } catch (error) {
-            console.log("error", error);
       this.logger.error(`Failed to create new survey config.`, error);
 
       // Return an error response
