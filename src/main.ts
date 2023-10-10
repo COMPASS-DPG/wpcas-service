@@ -56,6 +56,7 @@ async function bootstrap() {
     .setDescription(SWAGGER_CONSTANTS.DESCRIPTION)
     .setVersion(SWAGGER_CONSTANTS.VERSION)
     .addTag(SWAGGER_TAGS.DEFAULT) // Add a tag for API grouping
+    .addTag(SWAGGER_TAGS.SURVEYCONFIG)
 
     .build();
 
