@@ -10,6 +10,7 @@ import {
   Res,
   Query,
   Param,
+  ParseIntPipe,
 } from "@nestjs/common";
 import { SurveyConfigService } from "./survey-config.service";
 import {
@@ -53,11 +54,12 @@ export class SurveyConfigController {
         data: createdSurveyConfig,
       });
     } catch (error) {
+            console.log("error", error);
       this.logger.error(`Failed to create new survey config.`, error);
 
       // Return an error response
-      return res.status(HttpStatus.CREATED).json({
-        message: `Failed to create new survey config.`,
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: error.message || `Failed to create new survey config.`,
       });
     }
   }
@@ -66,7 +68,7 @@ export class SurveyConfigController {
   @Get()
   @ApiOperation({ summary: "Get all Survey config" }) // Api operation for swagger
   @ApiResponse({
-    status: HttpStatus.CREATED,
+    status: HttpStatus.OK,
     type: ResponseSurveyConfigDto,
     isArray: true,
   }) // Api response for Swagger.
@@ -86,7 +88,10 @@ export class SurveyConfigController {
       this.logger.error(`Failed to fetch survey configs`, error);
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: "Failed to fetch survey configs" });
+        .json({
+          message:
+            error.message || `Failed to Get all survey config.`,
+        });
     }
   }
 
@@ -96,14 +101,14 @@ export class SurveyConfigController {
   @ApiResponse({ status: HttpStatus.OK, type: ResponseSurveyConfigDto }) // Api operation for swagger
   async updateSurveyConfigById(
     @Res() res,
-    @Param("id") id: number,
+    @Param("id", ParseIntPipe) id: number,
     @Body() updateSurveyConfigDto: UpdateSurveyConfigDto
   ) {
     try {
       this.logger.log(`Initiated updating the survey config for id #${id}`);
       const updateSurveyConfig =
         await this.surveyConfigService.updateSurveyConfigById(
-          +id,
+          id,
           updateSurveyConfigDto
         );
       this.logger.log(`Successfully updated survey config for id #${id}`);
@@ -128,14 +133,18 @@ export class SurveyConfigController {
     status: HttpStatus.OK,
     type: ResponseSurveyConfigDto,
   })
-  async deleteSurveyConfigById(@Res() res, @Param("id") id: number) {
+  async deleteSurveyConfigById(
+    @Res() res,
+    @Param("id", ParseIntPipe) id: number
+  ) {
     try {
       this.logger.log(
         `Initiating deleting of a survey config with an id ${id}`
       );
 
-      const deletedSurveyConfig = await this.surveyConfigService.deleteSurveyConfig(+id)
-      
+      const deletedSurveyConfig =
+        await this.surveyConfigService.deleteSurveyConfig(id);
+
       return res.status(HttpStatus.OK).json({
         message: `Successfully deleted survey config for id #${id}`,
         data: deletedSurveyConfig,
