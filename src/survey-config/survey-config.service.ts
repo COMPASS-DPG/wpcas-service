@@ -39,7 +39,7 @@ export class SurveyConfigService {
     });
     if (!findSurveyConfigId) {
       throw new NotFoundException(
-        `Given survey config ID ${findSurveyConfigId} not found.`
+        `Survey config with ID ${findSurveyConfigId} not found.`
       );
     }
     // Update the survey config by the id
@@ -59,7 +59,7 @@ export class SurveyConfigService {
       }
     })
     if (!isExisted) { 
-      throw new NotFoundException(`The survey Config ID ${surveyConfigId} doesn't exist`)
+      throw new NotFoundException(`The survey Config ID ${surveyConfigId} doesn't exist.`)
     }
     // Delete a single survey configuration based on its unique identifier (id).
     const deletedSurveyConfig = await this.prisma.surveyConfig.delete({

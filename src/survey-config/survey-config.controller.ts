@@ -36,7 +36,7 @@ export class SurveyConfigController {
   async createSurveyConfig(
     @Res() res,
     @Body() createSurveyConfigDto: CreateSurveyConfigDto
-  ) {
+  ): Promise<ResponseSurveyConfigDto> {
     try {
       // Log the initiation for the Survey config creation
       this.logger.log(`Creating a new survey config`);
@@ -71,7 +71,10 @@ export class SurveyConfigController {
     type: ResponseSurveyConfigDto,
     isArray: true,
   }) // Api response for Swagger.
-  async getAllSurveyConfig(@Res() res, @Query() filter: SurveyConfigFilterDto) {
+  async getAllSurveyConfig(
+    @Res() res,
+    @Query() filter: SurveyConfigFilterDto
+  ): Promise<ResponseSurveyConfigDto[]> {
     try {
       this.logger.log(`Initiated fetching all the survey config.`);
       const surveyConfigs = await this.surveyConfigService.getAllSurveyConfig(
@@ -85,12 +88,9 @@ export class SurveyConfigController {
       });
     } catch (error) {
       this.logger.error(`Failed to fetch survey configs`, error);
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({
-          message:
-            error.message || `Failed to Get all survey config.`,
-        });
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        message: error.message || `Failed to Get all survey config.`,
+      });
     }
   }
 
@@ -102,7 +102,7 @@ export class SurveyConfigController {
     @Res() res,
     @Param("id", ParseIntPipe) id: number,
     @Body() updateSurveyConfigDto: UpdateSurveyConfigDto
-  ) {
+  ): Promise<ResponseSurveyConfigDto> {
     try {
       this.logger.log(`Initiated updating the survey config for id #${id}`);
       const updateSurveyConfig =
@@ -135,7 +135,7 @@ export class SurveyConfigController {
   async deleteSurveyConfigById(
     @Res() res,
     @Param("id", ParseIntPipe) id: number
-  ) {
+  ): Promise<ResponseSurveyConfigDto> {
     try {
       this.logger.log(
         `Initiating deleting of a survey config with an id ${id}`

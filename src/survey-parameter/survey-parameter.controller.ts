@@ -12,10 +12,7 @@ import {
   ParseIntPipe,
 } from "@nestjs/common";
 import { SurveyParameterService } from "./survey-parameter.service";
-import {
-  CreateSurveyParameterDto,
-  SurveyParameterFilterDto,
-} from "./dto/create-survey-parameter.dto";
+import { CreateSurveyParameterDto } from "./dto/create-survey-parameter.dto";
 import { UpdateSurveyParameterDto } from "./dto/update-survey-parameter.dto";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ResponseSurveyParameterdto } from "./dto/response-survey-parameter.dto";
@@ -38,7 +35,7 @@ export class SurveyParameterController {
   async createSurveyParameter(
     @Res() res,
     @Body() createSurveyParameterDto: CreateSurveyParameterDto
-  ) {
+  ): Promise<ResponseSurveyParameterdto> {
     try {
       // Log the initiation for the Survey Parameter creation
       this.logger.log(`Initiate to create a Survey Parameter`);
@@ -74,14 +71,12 @@ export class SurveyParameterController {
     isArray: true,
   }) // Api response for swagger
   async getAllSurveyParameter(
-    @Res() res,
-    @Query() filter: SurveyParameterFilterDto
-  ) {
+    @Res() res
+  ): Promise<ResponseSurveyParameterdto[]> {
     try {
-      console.log("filter", filter);
       this.logger.log(`Initiated fetching all the survey parameter.`);
       const surveyParameters =
-        await this.surveyParameterService.getAllSurveyParameter(filter);
+        await this.surveyParameterService.getAllSurveyParameter();
 
       if (!surveyParameters.length) throw Error("No record found");
       this.logger.log(`Fetched successfully all the survey parameter.`);
@@ -103,26 +98,30 @@ export class SurveyParameterController {
   @ApiOperation({ summary: "Update the survey parameter by Id." })
   @ApiResponse({
     status: HttpStatus.OK,
-    type: UpdateSurveyParameterDto,
+    type: ResponseSurveyParameterdto,
   })
   async updateSurveyParameterById(
     @Res() res,
     @Param("id", ParseIntPipe) id: number,
     @Body() updateSurveyParameterDto: UpdateSurveyParameterDto
-  ) {
+  ): Promise<ResponseSurveyParameterdto> {
     try {
       this.logger.log(`Initiated updating the survey parameter for id #${id}`);
-      let updatedSurveyParameter = await this.surveyParameterService.updateSurveyParameterById(
-        id,
-        updateSurveyParameterDto
-      )
+      let updatedSurveyParameter =
+        await this.surveyParameterService.updateSurveyParameterById(
+          id,
+          updateSurveyParameterDto
+        );
       this.logger.log(`Successfully updated survey parameter for id #${id}`);
       return res.status(HttpStatus.OK).json({
         message: `Successfully updated survey parameter for id #${id}`,
         data: updatedSurveyParameter,
       });
     } catch (error) {
-      this.logger.error(`Failed to update survey parameter for id #${id}`, error);
+      this.logger.error(
+        `Failed to update survey parameter for id #${id}`,
+        error
+      );
 
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         message:
