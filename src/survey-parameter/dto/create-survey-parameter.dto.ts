@@ -19,32 +19,3 @@ export class CreateSurveyParameterDto {
   @IsInt()
   surveyCycle: number;
 }
-
-// SurveyParameterFilterDto is used to filter the Survey parameter
-export class SurveyParameterFilterDto {
-  // Optional onboradingTime filter to validate if it's an integer
-  @IsOptional()
-  @IsInt()
-  onboardingTime?: number;
-
-  // Optional onboardingTimeUnit filter, validate that its valid TimeUnitsEnum value.
-  @IsOptional()
-  @IsSwaggerEnum(TimeUnitsEnum)
-  @IsEnum(TimeUnitsEnum, { each: true })
-  onboardingTimeUnit?: TimeUnitsEnum;
-
-  // Optional surveyCycle filter to validate if it's an integer
-  @IsOptional()
-  @IsInt()
-  surveyCycle?: number;
-
-  // Optional limit for pagination, validate that it's an integer.
-  @IsOptional()
-  @IsInt()
-  limit?: number = 10;
-
-  // Optional offset for pagination, validate that it's an integer.
-  @IsOptional()
-  @IsInt()
-  offset?: number = 0;
-}

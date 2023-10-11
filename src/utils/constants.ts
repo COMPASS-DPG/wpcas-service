@@ -12,7 +12,5 @@ export const SWAGGER_CONSTANTS = {
 };
 
 export enum SWAGGER_TAGS {
-  DEFAULT = "default",
-  SURVEYCONFIG = "survey-config",
-  SURVEYPARAMETER = "survey-parameter"
+  DEFAULT = "default"
 }
