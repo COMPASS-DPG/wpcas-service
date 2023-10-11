@@ -20,6 +20,7 @@ import {
 import { UpdateSurveyConfigDto } from "./dto/update-survey-config.dto";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ResponseSurveyConfigDto } from "./dto/response-survey-config.dto";
+import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
 
 @Controller("survey-config")
 @ApiTags("survey-config")
@@ -56,9 +57,13 @@ export class SurveyConfigController {
     } catch (error) {
       this.logger.error(`Failed to create new survey config.`, error);
 
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error); // get error message and status code
+
       // Return an error response
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        message: error.message || `Failed to create new survey config.`,
+        statusCode,
+        message: errorMessage || `Failed to create new survey config.`,
       });
     }
   }
@@ -88,8 +93,13 @@ export class SurveyConfigController {
       });
     } catch (error) {
       this.logger.error(`Failed to fetch survey configs`, error);
+
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error); // get error message and status code
+
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        message: error.message || `Failed to Get all survey config.`,
+        statusCode,
+        message: errorMessage || `Failed to Get all survey config.`,
       });
     }
   }
@@ -118,9 +128,12 @@ export class SurveyConfigController {
     } catch (error) {
       this.logger.error(`Failed to update survey config for id #${id}`, error);
 
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error); // get error message and status code
+
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        message:
-          error.message || `Failed to update survey config for id #${id}`,
+        statusCode,
+        message: errorMessage || `Failed to update survey config for id #${id}`,
       });
     }
   }
@@ -149,14 +162,14 @@ export class SurveyConfigController {
         data: deletedSurveyConfig,
       });
     } catch (error) {
-      this.logger.error(
-        `Failed to delete survey config for id #${id}. Error: ${JSON.stringify(
-          error
-        )}`
-      );
+      this.logger.error(`Failed to delete survey config for id #${id}`, error);
+
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error); // get error message and status code
+
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        message:
-          error.message || `Failed to delete survey config for id #${id}`,
+        statusCode,
+        message: errorMessage || `Failed to delete survey config for id #${id}`,
       });
     }
   }

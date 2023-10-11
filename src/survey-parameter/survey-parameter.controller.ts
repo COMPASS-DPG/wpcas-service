@@ -16,6 +16,7 @@ import { CreateSurveyParameterDto } from "./dto/create-survey-parameter.dto";
 import { UpdateSurveyParameterDto } from "./dto/update-survey-parameter.dto";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ResponseSurveyParameterdto } from "./dto/response-survey-parameter.dto";
+import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
 
 @ApiTags("survey-parameter")
 @Controller("survey-parameter")
@@ -44,7 +45,6 @@ export class SurveyParameterController {
         await this.surveyParameterService.createSurveyParameter(
           createSurveyParameterDto
         );
-
       // Log the successful creation of the survey parameter
       this.logger.log(`Successfully Created Survey Parameter`);
       // Return a success response with the created survey parameter.
@@ -54,10 +54,13 @@ export class SurveyParameterController {
       });
     } catch (error) {
       this.logger.error(`Failed to create new survey Parameter.`, error);
-
+      // get error message and status code
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error);
       // Return an error response
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        message: error.message || `Failed to create new survey Parameter.`,
+        statusCode,
+        message: errorMessage || `Failed to create new survey Parameter.`,
       });
     }
   }
@@ -87,8 +90,12 @@ export class SurveyParameterController {
       });
     } catch (error) {
       this.logger.error(`Failed to fetch survey parameters`, error);
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error); // get error message and status code
+      // Return an error response
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        message: error.message || `Failed to Get all survey parameters.`,
+        statusCode,
+        message: errorMessage || `Failed to Get all survey parameters.`,
       });
     }
   }
@@ -122,10 +129,13 @@ export class SurveyParameterController {
         `Failed to update survey parameter for id #${id}`,
         error
       );
-
+      const { errorMessage, statusCode } =
+        getPrismaErrorStatusAndMessage(error); // get error message and status code
+      // Return an error response
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        statusCode,
         message:
-          error.message || `Failed to update survey parameter for id #${id}`,
+          errorMessage || `Failed to update survey parameter for id #${id}`,
       });
     }
   }
