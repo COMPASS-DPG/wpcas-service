@@ -1,6 +1,5 @@
 import { TimeUnitsEnum } from "@prisma/client";
 import { IsEnum, IsInt, IsNotEmpty, IsOptional } from "class-validator";
-import { IsSwaggerEnum } from "src/utils/decorator";
 
 // CreateSurveyParameterDto is used to create a new survey parameter
 export class CreateSurveyParameterDto {

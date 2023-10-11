@@ -1,14 +1,26 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateSurveyParameterDto } from "./dto/create-survey-parameter.dto";
 import { UpdateSurveyParameterDto } from "./dto/update-survey-parameter.dto";
 import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
 export class SurveyParameterService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
+
+  // To check if the survey parameter exist in database or not
+  async checkIfSurveyParameterExists(){
+    return this.prisma.surveyParameters.findFirst();
+  }
+
   async createSurveyParameter(
     createSurveyParameterDto: CreateSurveyParameterDto
   ) {
+    const existingSurveyParameter = await this.checkIfSurveyParameterExists();
+
+    if (existingSurveyParameter) {
+      throw new ConflictException("Survey parameter already exists.");
+    }
+
     // create a new survey parameter
     const newSurveyParameter = await this.prisma.surveyParameters.create({
       data: createSurveyParameterDto,
