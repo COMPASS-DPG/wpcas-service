@@ -32,10 +32,12 @@ export class CreateMockUserDto {
   @IsString()
   profilePicture: string;
 
+  @IsOptional()
   @IsNotEmpty()
   @IsNumber()
   levelId: number;
 
+  @IsOptional()
   @IsNotEmpty()
   @IsNumber()
   teamId: number;

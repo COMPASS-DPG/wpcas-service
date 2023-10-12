@@ -21,7 +21,7 @@ import { MockCompetencyService } from "./mock-competency.service";
 import { CreateCompetencyLevelDto } from "../mock-competency-level/dto";
 
 @Controller("competency")
-@ApiTags("mockUserService/competency")
+@ApiTags("mockFracService/competency")
 export class MockCompetencyController {
   constructor(private competencyService: MockCompetencyService) {}
 

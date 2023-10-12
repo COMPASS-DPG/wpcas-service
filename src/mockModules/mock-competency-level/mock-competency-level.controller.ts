@@ -19,7 +19,7 @@ import {
 } from "./dto";
 
 @Controller("competency-level")
-@ApiTags("mockUserService/competency-level")
+@ApiTags("mockFracService/competency-level")
 export class MockCompetencyLevelController {
   constructor(private competencyLevelService: MockCompetencyLevelService) {}
   @Post()

@@ -16,7 +16,7 @@ import { MockRoleService } from "./mock-role.service";
 import { CreateCompetencyDto } from "../mock-competency/dto";
 
 @Controller("role")
-@ApiTags("mockUserService/role")
+@ApiTags("mockFracService/role")
 export class MockRoleController {
   constructor(private roleService: MockRoleService) {}
 

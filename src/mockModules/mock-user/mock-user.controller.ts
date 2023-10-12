@@ -17,7 +17,7 @@ import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ResponseMockUserDto } from "./dto/response-mock-user.dto";
 
 @Controller("user")
-@ApiTags("mockUserService/user")
+@ApiTags("mockFracService/user")
 export class MockUserController {
   constructor(private readonly mockUserService: MockUserService) {}
 
@@ -106,6 +106,42 @@ export class MockUserController {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ message: error.meta.cause });
+    }
+  }
+
+  @Patch("addRoleToUser/:id")
+  @ApiOperation({ summary: "add role to user by id" })
+  @ApiResponse({ status: HttpStatus.OK, type: ResponseMockUserDto })
+  async addRoleToUser(
+    @Param("id", ParseIntPipe) id: number,
+    @Body() { roleId }: any,
+    @Res() res
+  ) {
+    try {
+      const user = await this.mockUserService.addRoleToUser(id, roleId);
+      return res
+        .status(HttpStatus.OK)
+        .json({ data: user, message: "Successfully done" });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.meta.cause });
+    }
+  }
+
+  @Get("getcompetencyData/:id")
+  @ApiOperation({ summary: "get mock user's competency data by id" })
+  @ApiResponse({ status: HttpStatus.OK, type: ResponseMockUserDto })
+  async fetchAllCompetencyDataForUserById(@Param("id", ParseIntPipe) id: number, @Res() res) {
+    try {
+      const user = await this.mockUserService.fetchAllCompetencyDataForUserById(id);
+      return res
+        .status(HttpStatus.OK)
+        .json({ data: user, message: "Successfully done" });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
     }
   }
 }

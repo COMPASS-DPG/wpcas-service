@@ -16,13 +16,13 @@ import { MockTeamModule } from "./mock-team/mock-team.module";
     MockLevelModule,
     MockTeamModule,
     RouterModule.register([
-      { path: "mockUserService/", module: MockRoleModule },
-      { path: "mockUserService/", module: MockCompetencyModule },
-      { path: "mockUserService/", module: MockCompetencyLevelModule },
-      { path: "mockUserService/", module: MockUserModule },
-      { path: "mockUserService/", module: MockLevelModule },
-      { path: "mockUserService/", module: MockTeamModule },
+      { path: "mockFracService/", module: MockRoleModule },
+      { path: "mockFracService/", module: MockCompetencyModule },
+      { path: "mockFracService/", module: MockCompetencyLevelModule },
+      { path: "mockFracService/", module: MockUserModule },
+      { path: "mockFracService/", module: MockLevelModule },
+      { path: "mockFracService/", module: MockTeamModule },
     ]),
   ],
 })
-export class MockModule {}
+export class MockFracModule {}
