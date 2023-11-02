@@ -20,7 +20,7 @@ import {
   ResponseTrackerDtoResponse,
   UpdateResponseTrackerDto,
 } from "./dto";
-import { getPrismaErrorStatusAndMessage } from "..//utils/utils";
+import { getPrismaErrorStatusAndMessage } from "../utils/utils";
 
 @Controller("response-tracker")
 @ApiTags("response-tracker")

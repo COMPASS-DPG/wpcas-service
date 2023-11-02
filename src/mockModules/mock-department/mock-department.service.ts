@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateDepartmentDto } from "./dto/create-mock-department.dto";
 import { UpdateDepartmentDto } from "./dto/update-mock-department.dto";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "../../prisma/prisma.service";
 
 @Injectable()
 export class MockDepartmentService {

@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "..//prisma/prisma.service";
+import { PrismaService } from "../prisma/prisma.service";
 import { CreateResponseTrackerDto } from "./dto/create-response-tracker.dto";
 import { UpdateResponseTrackerDto } from "./dto/update-response-tracker.dto";
 import { IResponseTracker } from "./interfaces/response-tracker.interface";

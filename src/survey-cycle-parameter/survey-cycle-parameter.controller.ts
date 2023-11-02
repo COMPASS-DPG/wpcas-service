@@ -12,7 +12,7 @@ import {
   Res,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
+import { getPrismaErrorStatusAndMessage } from "../utils/utils";
 import { ResponseSurveyCycleParameterDto } from "./dto/response-survey-cycle-parameter.dto";
 import { CreateSurveyCycleParameterDto, SurveyCycleParameterFilterDto } from "./dto/create-survey-cycle-parameter.dto";
 import { UpdateSurveyCycleParameterDto } from "./dto/update-survey-cycle-parameter.dto";

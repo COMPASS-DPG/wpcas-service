@@ -1,13 +1,11 @@
 import {
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "../../prisma/prisma.service";
 import { CreateCompetencyDto, UpdateCompetencyDto } from "./dto";
 import { MockCompetencyLevelService } from "../mock-competency-level/mock-competency-level.service";
 import { CreateCompetencyLevelDto } from "../mock-competency-level/dto";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 @Injectable()
 export class MockCompetencyService {

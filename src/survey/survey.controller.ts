@@ -1,7 +1,7 @@
-import { Body, Controller, Get, HttpStatus, Logger, Param, ParseUUIDPipe, Post, Res } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Logger, Param, ParseUUIDPipe, Post, Res } from '@nestjs/common';
 import { SurveyService } from './survey.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { getPrismaErrorStatusAndMessage } from 'src/utils/utils';
+import { getPrismaErrorStatusAndMessage } from '../utils/utils';
 
 @Controller('survey')
 export class SurveyController {

@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { PrismaModule } from "src/prisma/prisma.module";
+import { PrismaModule } from "../prisma/prisma.module";
 import { SurveyCycleParameterController } from "./survey-cycle-parameter.controller";
 import { SurveyCycleParameterService } from "./survey-cycle-parameter.service";
 

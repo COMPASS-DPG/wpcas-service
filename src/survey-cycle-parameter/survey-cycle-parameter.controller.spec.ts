@@ -3,7 +3,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { ConfigService } from "@nestjs/config";
-import { SurveyConfigModule } from "src/survey-config/survey-config.module";
+import { SurveyConfigModule } from "../survey-config/survey-config.module";
 import { CreateSurveyCycleParameterDto } from "./dto/create-survey-cycle-parameter.dto";
 import { ResponseSurveyCycleParameterDto } from "./dto/response-survey-cycle-parameter.dto";
 import { UpdateSurveyCycleParameterDto } from "./dto/update-survey-cycle-parameter.dto";

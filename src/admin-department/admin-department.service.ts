@@ -1,12 +1,10 @@
 import {
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 import { FilterAdminDepartmentsDto } from "./dto/create-admin-department.dto";
-import { UpdateAdminDepartmentDto } from "./dto/update-admin-department.dto";
-import { PrismaService } from "src/prisma/prisma.service";
-import { MockDepartmentService } from "src/mockModules/mock-department/mock-department.service";
+import { PrismaService } from "../prisma/prisma.service";
+import { MockDepartmentService } from "../mockModules/mock-department/mock-department.service";
 
 @Injectable()
 export class AdminDepartmentService {

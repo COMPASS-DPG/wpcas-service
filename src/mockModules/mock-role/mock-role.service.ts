@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "../../prisma/prisma.service";
 import { CreateMockRoleDto, UpdateMockRoleDto } from "./dto";
 import { MockCompetencyService } from "../mock-competency/mock-competency.service";
 import { CreateCompetencyDto } from "../mock-competency/dto";

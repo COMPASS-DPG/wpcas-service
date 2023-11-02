@@ -22,9 +22,9 @@ import {
 import { UpdateQuestionBankDto } from "./dto/update-question-bank.dto";
 import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ResponseQuestionBankDto } from "./dto/response-question-bank.dto";
-import { getPrismaErrorStatusAndMessage } from "src/utils/utils";
+import { getPrismaErrorStatusAndMessage } from "../utils/utils";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { multerOptions } from "src/config/multer-options.config";
+import { multerOptions } from "../config/multer-options.config";
 
 @Controller("question-bank")
 @ApiTags("question-bank")

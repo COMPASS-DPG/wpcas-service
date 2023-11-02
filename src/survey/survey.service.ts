@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { ResponseTrackerStatusEnum, SurveyStatusEnum } from "@prisma/client";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "../prisma/prisma.service";
 import {
   CreateSurveyFormDto,
   ResponseSurveyFormDto,
 } from "src/survey-form/dto";
-import { SurveyFormService } from "src/survey-form/survey-form.service";
+import { SurveyFormService } from "../survey-form/survey-form.service";
 import { QuestionBankService } from "../question-bank/question-bank.service";
 
 @Injectable()
