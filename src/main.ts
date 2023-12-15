@@ -15,6 +15,14 @@ async function bootstrap() {
   // Create a NestJS application instance
   const app = await NestFactory.create(AppModule, { cors: true });
 
+  // Enable Cross-Origin Resource Sharing (CORS)
+  app.enableCors({
+    origin: true,
+    methods: ["GET", "POST","PUT","PATCH", "DELETE"],
+    allowedHeaders: "*",
+    credentials:true
+  });
+
   // Enable using the container for class-validator
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
@@ -39,7 +47,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe(validationOptions));
 
   // Configure global serialization using class-transformer
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  // app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   // Configure Swagger documentation
   const swaggerConfig = new DocumentBuilder()
@@ -72,7 +80,15 @@ async function bootstrap() {
   });
 
   // Start the NestJS application, listening on the specified port or defaulting to 4010
-  await app.listen(configService.get<number>("APP_PORT") || 4010);
+  const PORT = configService.get<number>("APP_PORT") || 4010;
+  await app.listen(PORT, () => {
+    console.log(
+      `
+        🔌 REST API ready at http://localhost:${PORT}/
+        💻 Swagger UI ready at http://localhost:${PORT}/${SWAGGER_CONSTANTS.PATH}
+      `
+    );
+  });
 }
 
 // Call the bootstrap function to start the application

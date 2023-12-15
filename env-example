@@ -7,4 +7,4 @@ DATABASE_USERNAME=postgres
 DATABASE_PASSWORD=secret
 DATABASE_NAME=service-db
 DATABASE_PORT=5432
-DATABASE_URL=""
+DATABASE_URL="postgresql://postgres:secret@postgres:5432/service-db?sslmode=prefer"

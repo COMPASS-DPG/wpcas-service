@@ -10,11 +10,275 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-//dummy user model
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+// Here goes models
+model UserMetadata {
+  id                         Int               @unique() @default(autoincrement())
+  userId                     String            @unique() @db.Uuid
+  userName                   String            @unique()
+  profilePicture             String?
+  isNewEmployee              Boolean
+  designation                String?
+  dateOfJoining              DateTime
+  createdAt                  DateTime          @default(now())
+  updatedAt                  DateTime          @updatedAt
+  SurveyForm                 SurveyForm[]
+  isAdmin                    Boolean
+  ResponseTrackersAsAssessee ResponseTracker[] @relation("AssesseeResponseTrackers")
+  ResponseTrackersAsAssessor ResponseTracker[] @relation("AssessorResponseTrackers")
+  // departmentId               Int
+  // Department                 AdminDepartment   @relation(fields: [departmentId], references: [departmentId])
+
+  @@id([id, userId])
 }
 
-// Here goes models
+model QuestionBank {
+  id                    Int      @id @default(autoincrement())
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  competencyId          Int
+  competencyLevelNumber Int
+  question              String
+
+  @@unique([competencyId, competencyLevelNumber, question])
+  @@map("question_bank")
+}
+
+model AdminCompetency {
+  id               Int      @default(autoincrement())
+  competencyId     Int      @unique
+  name             String
+  description      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  competencyLevels Json[] //{competencyLevelNumber, competencyLevelName}
+
+  @@id([id, competencyId])
+  @@map("admin_competencies")
+}
+
+// model AdminDepartment {
+//   id           Int            @default(autoincrement())
+//   departmentId Int            @unique
+//   name         String
+//   description  String?
+//   UserMetadata UserMetadata[]
+//   SurveyConfig SurveyConfig?
+
+//   @@id([id, departmentId])
+//   @@map("admin_department")
+// }
+
+model CredentialDid{
+  id                 Int           @id @default(autoincrement())
+  authorDid String
+  schemaDid String
+  schemaVersion String
+
+  @@unique([schemaDid, schemaVersion])
+  @@map("credential_did")
+}
+
+model SurveyConfig {
+  id                 Int           @id @default(autoincrement())
+  surveyName         String
+  onboardingTime     Int           @default(3)
+  onboardingTimeUnit TimeUnitsEnum @default(MONTH)
+  startTime          DateTime
+  endTime            DateTime
+  isActive           Boolean       @default(false)
+  SurveyForm         SurveyForm[]
+  UserMapping        UserMapping[]
+  // departmentId          Int                    @unique
+  // AdminDepartment       AdminDepartment        @relation(fields: [departmentId], references: [departmentId])
+  // SurveyCycleParameters SurveyCycleParameter[]
+
+  @@map("survey_config")
+}
+
+model UserMapping {
+  id             Int          @id @default(autoincrement())
+  surveyConfigId Int
+  SurveyConfig   SurveyConfig @relation(fields: [surveyConfigId], references: [id], onDelete: Cascade)
+  assesseeId     String       @db.Uuid
+  assessorIds    String[]     @db.Uuid
+}
+
+// model SurveyCycleParameter {
+//   id             Int           @id @default(autoincrement())
+//   startTime      DateTime
+//   endTime        DateTime
+//   surveyForm     SurveyForm[]
+//   isActive       Boolean
+//   surveyConfigId Int?
+//   SurveyConfig   SurveyConfig? @relation(fields: [surveyConfigId], references: [id])
+//   createdAt      DateTime      @default(now())
+//   updatedAt      DateTime      @updatedAt
+
+//   @@map("survey_cycle_parameters")
+// }
+
+model SurveyForm {
+  id                   Int               @id @default(autoincrement())
+  userId               String            @db.Uuid
+  UserMetadata         UserMetadata      @relation(fields: [userId], references: [userId])
+  questionsJson        Json //{questionId: question}
+  surveyConfigId       Int
+  SurveyConfig         SurveyConfig      @relation(fields: [surveyConfigId], references: [id])
+  status               SurveyStatusEnum
+  overallScore         Float?
+  sunbirdCredentialIds String?
+  ResponseTracker      ResponseTracker[]
+  SurveyScore          SurveyScore[]
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  // surveyCycleParameterId Int
+  // surveyCycleParameter   SurveyCycleParameter @relation(fields: [surveyCycleParameterId], references: [id])
+
+  @@unique([userId, surveyConfigId])
+  @@map("survey_form")
+}
+
+model ResponseTracker {
+  id           Int                       @id @default(autoincrement())
+  surveyFormId Int
+  surveyForm   SurveyForm                @relation(fields: [surveyFormId], references: [id], onDelete: Cascade)
+  assesseeId   String                    @db.Uuid
+  assessorId   String                    @db.Uuid
+  responseJson Json[]                    @default([]) //{questionId: number, answer: (Yes, No and DoNotKnow)}
+  status       ResponseTrackerStatusEnum
+  Assessee     UserMetadata              @relation("AssesseeResponseTrackers", fields: [assesseeId], references: [userId])
+  Assessor     UserMetadata              @relation("AssessorResponseTrackers", fields: [assessorId], references: [userId])
+
+  @@unique([surveyFormId, assesseeId, assessorId])
+  @@map("response_tracker")
+}
+
+model SurveyScore {
+  id                    Int        @id @default(autoincrement())
+  surveyFormId          Int
+  surveyForm            SurveyForm @relation(fields: [surveyFormId], references: [id])
+  competencyId          Int
+  competencyLevelNumber Int
+  score                 Float
+
+  @@unique([surveyFormId, competencyId, competencyLevelNumber])
+  @@map("survey_scores")
+}
+
+enum SurveyStatusEnum {
+  CREATED
+  PUBLISHED
+  CLOSED
+}
+
+enum ResponseTrackerStatusEnum {
+  PENDING
+  COMPLETED
+}
+
+enum TimeUnitsEnum {
+  DAY
+  MONTH
+  YEAR
+}
+
+//Mock Database Models - To be removed after the app is integrated with User Service and FRAC Based Competency Tagger.
+model User {
+  id             String        @id @default(uuid())
+  email          String        @unique
+  role           UserRolesEnum
+  userName       String
+  password       String
+  profilePicture String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  designation    String
+  // Level          Level?        @relation(fields: [levelNumber], references: [levelNumber])
+  // levelNumber    Int?
+  // Department     Department?   @relation(fields: [departmentId], references: [id])
+  // departmentId   Int?
+
+  @@map("users")
+}
+
+// model Level {
+//   levelNumber     Int               @id @unique
+//   description     String?
+//   users           User[]
+//   CompetencyLevel CompetencyLevel[]
+// }
+
+// model Department {
+//   id          Int     @id @default(autoincrement())
+//   name        String  @unique
+//   description String?
+//   users       User[]
+// }
+
+model Designation {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
+  Roles       Role[]
+}
+
+model Role {
+  id            Int                @id @default(autoincrement())
+  name          String             @unique
+  description   String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  competencies  RoleToCompetency[]
+  Designation   Designation?       @relation(fields: [designationId], references: [id])
+  designationId Int?
+
+  @@map("roles")
+}
+
+model Competency {
+  id               Int                           @id @default(autoincrement())
+  name             String                        @unique
+  description      String?
+  createdAt        DateTime                      @default(now())
+  updatedAt        DateTime                      @updatedAt
+  roles            RoleToCompetency[]
+  competencyLevels CompetencyToCompetencyLevel[]
+
+  @@map("competencies")
+}
+
+model RoleToCompetency {
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  roleId       Int
+  competency   Competency @relation(fields: [competencyId], references: [id], onDelete: Cascade)
+  competencyId Int
+
+  @@id([roleId, competencyId])
+}
+
+model CompetencyLevel {
+  id           Int                           @id @default(autoincrement())
+  name         String                        @unique
+  description  String?
+  levelNumber  Int
+  // Level        Level                         @relation(fields: [levelNumber], references: [levelNumber])
+  createdAt    DateTime                      @default(now())
+  updatedAt    DateTime                      @updatedAt
+  competencies CompetencyToCompetencyLevel[]
+
+  @@map("competency_levels")
+}
+
+model CompetencyToCompetencyLevel {
+  competency        Competency      @relation(fields: [competencyId], references: [id], onDelete: Cascade)
+  competencyId      Int
+  competencyLevel   CompetencyLevel @relation(fields: [competencyLevelId], references: [id], onDelete: Cascade)
+  competencyLevelId Int
+
+  @@id([competencyId, competencyLevelId])
+}
+
+enum UserRolesEnum {
+  ADMIN
+  CONSUMER
+}
