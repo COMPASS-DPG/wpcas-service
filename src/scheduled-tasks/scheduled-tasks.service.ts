@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { SurveyConfig, SurveyStatusEnum } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
@@ -22,7 +22,7 @@ export class ScheduledTasksService {
     private surveyScoreService: SurveyScoreService,
     private passbookService: PassbookService,
     private sunbirdRcService: SunbirdRcService
-  ) {}
+  ) { }
   private readonly logger = new Logger(ScheduledTasksService.name);
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
@@ -148,5 +148,127 @@ export class ScheduledTasksService {
     } else {
       this.logger.log(`The survey with surveyConfigId: "${surveyConfig.id}" is to be Activated in the future or a dead survey.`);
     }
+  }
+
+  // -----------------------   for testing purpose only ---------------------------------
+
+  async startSurveyDemo(surveyConfigId: number) {
+    this.logger.log(`Activating the Survey with surveyConfigId: "${surveyConfigId}".`);
+
+    await this.prismaService.surveyConfig.update({
+      where: {
+        id: surveyConfigId
+      },
+      data: {
+        isActive: true,
+        startTime: new Date()
+      }
+    })
+
+    this.logger.log(`Fetching userIds of the users who are participating in the survey.`);
+    const updateUsers = await this.surveyService.fetchUserIdsOfSurveyParticipants(
+      surveyConfigId
+    );
+    this.logger.log(`Updating all "${updateUsers.size}" user's data who are participating in the survey.`);
+    for (const userId of updateUsers) {
+      await this.userMetadataService.createOrUpdateUserMetadata(userId);
+    }
+
+    this.logger.log(`Generating SurveyForms for every user who is participating in the Survey with surveyConfig id: "${surveyConfigId}".`);
+    await this.surveyService.generateSurveyFormsForSurveyConfig(
+      surveyConfigId
+    );
+    this.logger.log(`The Survey with surveyConfig id: "${surveyConfigId}" has been started.`);
+  }
+
+  // -----------------------   for testing purpose only ---------------------------------
+
+  async completeSurveyDemo(surveyConfigId: number) {
+    const surveyConfigs = await this.surveyConfigService.getAllSurveyConfig({ configId: surveyConfigId })
+    const surveyConfig = surveyConfigs?.[0]
+
+    if (!surveyConfig) {
+      throw new NotFoundException(`Survey config with id ${surveyConfigId} not found`)
+    }
+
+    if (!surveyConfig.isActive) {
+      throw new BadRequestException(`Survey for survey config with id ${surveyConfigId} in not started`)
+    }
+
+    this.logger.log(`updating the Survey config end date for surveyConfigId: "${surveyConfigId}".`);
+
+    await this.prismaService.surveyConfig.update({
+      where: {
+        id: surveyConfigId
+      },
+      data: { endTime: new Date() }
+    })
+
+    this.logger.log(`Fetching all SurveyForms related to the survey config id ${surveyConfigId}.`);
+
+    const surveyForms =
+      await this.surveyFormService.findSurveyFormBySurveyConfigId(
+        surveyConfigId
+      );
+
+    this.logger.log(`Calculation scores for all "${surveyForms.length}" SurveyForms related to the survey.`);
+    for (const surveyForm of surveyForms) {
+
+      this.logger.log(`Updating the surveyFrom's (id: "${surveyForm.id}") status to "CLOSED".`);
+      await this.surveyFormService.updateSurveyFormStatus(
+        surveyForm.id,
+        SurveyStatusEnum.CLOSED
+      );
+
+      this.logger.log(`Calculating the score for SurveyForm with id: "${surveyForm.id}" for user with id: "${surveyForm.userId}".`);
+      await this.surveyScoreService.calculateSurveyScoreBySurveyFormId(
+        surveyForm.id
+      );
+      this.logger.log(`Calculated the score for SurveyForm with id: "${surveyForm.id}" for user with id: "${surveyForm.userId}".`);
+
+
+      this.logger.log(`Fetching the data to create a sunbirdRC certificate.`);
+      const credData = await this.surveyService.createCredentialSchemaBySurveyFormId(surveyForm.id);
+
+      this.logger.log(`Issuing sunbirdRC credentials.`);
+      let sunbirdCred: any;
+      try {
+        sunbirdCred = await this.sunbirdRcService.issueCredential(credData);
+      } catch (error) {
+        this.logger.error(`Failed in issuing sunbirdRC credentials.`, error);
+      }
+
+      if (sunbirdCred) {
+        try {
+          this.logger.log(`Credentials issued. Pushing credentials to passbook.`);
+          await this.passbookService.addFeedback({
+            ...credData,
+            certificateId: sunbirdCred.id
+          });
+          this.logger.log(`Added credentials to passbook."`);
+
+        } catch (error) {
+          this.logger.error(`Failed to add credentials to passbook.`, error);
+        }
+
+        this.logger.log(`Updating credentials and overall score in the surveyFrom.`);
+        await this.surveyFormService.updateOverallScoreAndCredentialDid(surveyForm.id, credData.overallScore, sunbirdCred.id);
+
+      }
+    }
+
+    this.logger.log(`Deleting the userMapping for the survey as it will end today.`);
+    await this.prismaService.userMapping.deleteMany({
+      where: { surveyConfigId: surveyConfigId },
+    });
+
+    this.logger.log(`Deactivating the Survey "${surveyConfig}" as it will end today.`);
+    await this.prismaService.surveyConfig.update({
+      where: {
+        id: surveyConfigId
+      },
+      data: { isActive: false }
+    })
+    this.logger.log(`The Survey "${surveyConfig}" ended today.`);
   }
 }
