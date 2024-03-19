@@ -25,3 +25,36 @@ networks:
 #      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
 #      POSTGRES_DB: ${DATABASE_NAME}
 
+
+
+# for local testing
+
+# version: '3'
+# services:
+#   api:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+#     ports:
+#       - ${APP_PORT}:${APP_PORT}
+#     networks:
+#       - mynetwork
+#     depends_on:
+#       - postgres
+
+#   postgres:
+#     image: postgres:15.3-alpine
+#     ports:
+#       - ${DATABASE_PORT}:5432
+#     volumes:
+#       - ./.data/db:/var/lib/postgresql/data
+#     environment:
+#       POSTGRES_USER: ${DATABASE_USERNAME}
+#       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+#       POSTGRES_DB: ${DATABASE_NAME}
+#     networks:
+#       - mynetwork
+
+
+# networks:
+#   mynetwork:
