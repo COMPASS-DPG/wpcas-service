@@ -17,6 +17,7 @@ import { MockUserService } from "../mockModules/mock-user/mock-user.service";
 import { MockRoleService } from "./../mockModules/mock-role/mock-role.service";
 import { MockDesignationService } from "../mockModules/mock-designation/mock-designation.service";
 import { FileUploadService } from "../file-upload/file-upload.service";
+import axios from "axios";
 
 @Injectable()
 export class QuestionBankService {
@@ -243,7 +244,27 @@ export class QuestionBankService {
   }
 
   async getAllQuestionsForUser(userId: string) {
-    const user = await this.mockUserService.findOne(userId);
+    // const user = await this.mockUserService.findOne(userId);
+
+    const baseUrl = "https://compass-dev.tarento.com/api/user/v4/user/search";
+    const headers = {
+        'Authorization': 'bearer ' + process.env.USER_SERVICE_TOKEN,
+        'Content-Type': 'application/json',
+        'Cookie': process.env.USER_SERVICE_COOKIE
+        };
+        
+    const data = {
+        "request": {
+            "filters": {
+              "id": userId
+            }
+        }
+    };
+
+    let response = await axios.post(baseUrl, data, {headers});
+
+    const user = response.data.result?.response?.content[0]?.profileDetails?.employmentDetails;
+
     if (!user) {
       // Handle the case when the user is not found.
       throw new Error("User not found");
