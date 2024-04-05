@@ -81,8 +81,8 @@ export class UserMetadataService {
       createdAt: response.data.result?.response?.content[0]?.createdDate,
       role: (response.data.result?.response?.content[0]?.organisations[0]?.roles.indexOf("ADMIN") != -1) ? "ADMIN" : "", // user service has "roles" for every user
       profilePicture: userMetadata?.profilePicture,
-      designation: response.data.result?.response?.content[0]?.profileDetails?.employmentDetails?.designation,
-      dateOfJoining: response.data.result?.response?.content[0]?.profileDetails?.employmentDetails?.dojOfService
+      designation: response.data.result?.response?.content[0]?.profileDetails?.professionalDetails[0]?.designation,
+      dateOfJoining: response.data.result?.response?.content[0]?.profileDetails?.professionalDetails[0]?.doj
     };
     const userObj = {
       userId: user.id,

@@ -263,7 +263,7 @@ export class QuestionBankService {
 
     let response = await axios.post(baseUrl, data, {headers});
 
-    const user = response.data.result?.response?.content[0]?.profileDetails?.employmentDetails;
+    const user = response.data.result?.response?.content[0]?.profileDetails?.professionalDetails[0];
 
     if (!user) {
       // Handle the case when the user is not found.
@@ -271,7 +271,7 @@ export class QuestionBankService {
     }
 
     // Get the user's designation
-    const designation = user.designation;
+    const designation = user?.designation;
 
     // Get all the roles for a designation
     const userRoles =
