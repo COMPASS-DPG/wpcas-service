@@ -8,6 +8,7 @@ import { MockRoleService } from '../mockModules/mock-role/mock-role.service';
 import { MockCompetencyService } from '../mockModules/mock-competency/mock-competency.service';
 import { MockCompetencyLevelService } from '../mockModules/mock-competency-level/mock-competency-level.service';
 import { FileUploadService } from '../file-upload/file-upload.service';
+import { TarentoService } from 'src/external-services/tarento/tarento.service';
 
 @Module({
   // Import the PrismaModule to make Prisma service available within this module
@@ -24,7 +25,8 @@ import { FileUploadService } from '../file-upload/file-upload.service';
     MockUserService,
     MockDesignationService,
     MockRoleService,
-    FileUploadService
+    FileUploadService,
+    TarentoService
   ],
 
   // Export the QuestionBankService to make it available for other modules that import this module

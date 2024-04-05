@@ -8,6 +8,7 @@ import { UserMetadataFilterDto } from "./dto";
 import { UserMappingFileUploadDto } from "../survey-config/dto/create-survey-config.dto";
 import { SurveyService } from "../survey/survey.service";
 import { SurveyFormService } from "../survey-form/survey-form.service";
+import { TarentoService } from "src/external-services/tarento/tarento.service";
 
 @Injectable()
 export class UserMetadataService {
@@ -18,7 +19,8 @@ export class UserMetadataService {
     private surveyConfig: SurveyConfigService,
     @Inject(forwardRef(()=>SurveyService))
     private surveyService: SurveyService,
-    private surveyForm: SurveyFormService
+    private surveyForm: SurveyFormService,
+    private tarentoService: TarentoService
   ) {}
 
   public async syncUserDataWithFrac() {
@@ -56,15 +58,27 @@ export class UserMetadataService {
       where: { userId },
       select: this.metadataSelect,
     });
-    const user = await this.mockUser.findOne(userId);
+    // const user = await this.mockUser.findOne(userId);
+    let response = await this.tarentoService.getUser(userId);
+
+    const user = {
+      id: response.data.result?.response?.content[0]?.id,
+      userName: response.data.result?.response?.content[0].userName,
+      createdAt: response.data.result?.response?.content[0]?.createdDate,
+      role: (response.data.result?.response?.content[0]?.organisations[0]?.roles.indexOf("ADMIN") != -1) ? "ADMIN" : "", // user service has "roles" for every user
+      profilePicture: userMetadata?.profilePicture,
+      designation: response.data.result?.response?.content[0]?.profileDetails?.professionalDetails[0]?.designation,
+      dateOfJoining: response.data.result?.response?.content[0]?.profileDetails?.professionalDetails[0]?.doj
+    };
+
     const userObj = {
       userId: user.id,
       userName: user.userName,
       isNewEmployee: false,
-      dateOfJoining: user.createdAt,
-      isAdmin: user.role == UserRolesEnum.ADMIN ? true : false,
+      dateOfJoining: user.dateOfJoining,
+      isAdmin: user.role == "ADMIN" ? true : false,
       designation: user.designation,
-      profilePicture: user.profilePicture
+      profilePicture: null // user service doesn't store profilePicture
     };
 
     if (!userMetadata) {
@@ -239,6 +253,7 @@ export class UserMetadataService {
     dateOfJoining: true,
     isAdmin: true,
     designation: true,
-    isNewEmployee: true
+    isNewEmployee: true,
+    profilePicture: true,
   };
 }

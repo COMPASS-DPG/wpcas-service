@@ -17,6 +17,8 @@ import { MockUserService } from "../mockModules/mock-user/mock-user.service";
 import { MockRoleService } from "./../mockModules/mock-role/mock-role.service";
 import { MockDesignationService } from "../mockModules/mock-designation/mock-designation.service";
 import { FileUploadService } from "../file-upload/file-upload.service";
+import axios from "axios";
+import { TarentoService } from "src/external-services/tarento/tarento.service";
 
 @Injectable()
 export class QuestionBankService {
@@ -26,7 +28,8 @@ export class QuestionBankService {
     private mockUserService: MockUserService,
     private mockDesignationService: MockDesignationService,
     private mockRoleService: MockRoleService,
-    private fileUploadService: FileUploadService
+    private fileUploadService: FileUploadService,
+    private tarentoService: TarentoService
   ) {}
 
   async createQuestionByCompentencyId(
@@ -243,14 +246,18 @@ export class QuestionBankService {
   }
 
   async getAllQuestionsForUser(userId: string) {
-    const user = await this.mockUserService.findOne(userId);
+    // const user = await this.mockUserService.findOne(userId);
+
+    let response = await this.tarentoService.getUser(userId);
+
+    const user = response.data.result?.response?.content[0]?.profileDetails?.professionalDetails[0];
     if (!user) {
       // Handle the case when the user is not found.
       throw new Error("User not found");
     }
 
     // Get the user's designation
-    const designation = user.designation;
+    const designation = user?.designation;
 
     // Get all the roles for a designation
     const userRoles =

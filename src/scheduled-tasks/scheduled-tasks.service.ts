@@ -10,6 +10,7 @@ import { UserMetadataService } from "../user-metadata/user-metadata.service";
 import { isDayBeforeToday, isToday, isTomorrow } from "../utils/utils";
 import { PassbookService } from "src/external-services/passbook/passbook.service";
 import { SunbirdRcService } from "src/external-services/sunbird-rc/sunbird-rc.service";
+import { TarentoService } from "src/external-services/tarento/tarento.service";
 
 @Injectable()
 export class ScheduledTasksService {
@@ -21,7 +22,8 @@ export class ScheduledTasksService {
     private surveyFormService: SurveyFormService,
     private surveyScoreService: SurveyScoreService,
     private passbookService: PassbookService,
-    private sunbirdRcService: SunbirdRcService
+    private sunbirdRcService: SunbirdRcService,
+    private tarentoService: TarentoService
   ) {}
   private readonly logger = new Logger(ScheduledTasksService.name);
 
@@ -148,5 +150,11 @@ export class ScheduledTasksService {
     } else {
       this.logger.log(`The survey with surveyConfigId: "${surveyConfig.id}" is to be Activated in the future or a dead survey.`);
     }
+  }
+
+
+  @Cron(process.env.FRAC_CRON_EPX ?? CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT)
+  async fracSyncCron(){
+    await this.tarentoService.formatAndSyncFracData();
   }
 }

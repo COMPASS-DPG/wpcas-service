@@ -11,6 +11,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { AdminCompetencyModule } from "src/admin-competency/admin-competency.module";
 import { SunbirdRcModule } from "src/external-services/sunbird-rc/sunbird-rc.module";
 import { PassbookModule } from "src/external-services/passbook/passbook.module";
+import { TarentoModule } from "src/external-services/tarento/tarento.module";
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { PassbookModule } from "src/external-services/passbook/passbook.module";
     AdminCompetencyModule,
     SunbirdRcModule,
     PassbookModule,
+    TarentoModule
   ],
   providers: [
     ScheduledTasksService,
