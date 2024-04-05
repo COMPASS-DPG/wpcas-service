@@ -246,7 +246,7 @@ export class QuestionBankService {
   async getAllQuestionsForUser(userId: string) {
     // const user = await this.mockUserService.findOne(userId);
 
-    const baseUrl = "https://compass-dev.tarento.com/api/user/v4/user/search";
+    const baseUrl = process.env.USER_SERVICE_URL || "";
     const headers = {
         'Authorization': 'bearer ' + process.env.USER_SERVICE_TOKEN,
         'Content-Type': 'application/json',
