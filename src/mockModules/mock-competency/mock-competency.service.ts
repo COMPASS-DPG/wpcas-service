@@ -144,4 +144,44 @@ export class MockCompetencyService {
       },
     });
   }
+
+  public async findCompetenciesWithLevelNames() {
+    const competencies = await this.prisma.competency.findMany({
+      select: {
+        id: true,
+        name: true,
+        competencyLevels: {
+          select: {
+            competencyLevel: {
+              select: {
+                id: true,
+                name: true,
+                levelNumber: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return this.transformCompetencyObject(competencies);
+  }
+
+  public transformCompetencyObject(competencies) {
+    const transformedCompetencies: any = [];
+    competencies.map(async (competency) => {
+      const transformedCompetency = {
+          id: competency.id,
+          name: competency.name,
+          levels: competency.competencyLevels.map((level) => ({
+            id: level.competencyLevel.id,
+            name: level.competencyLevel.name,
+            levelNumber: level.competencyLevel.levelNumber,
+          })),
+      };
+      transformedCompetencies.push(transformedCompetency);
+    });
+
+    return transformedCompetencies;
+  }
 }
