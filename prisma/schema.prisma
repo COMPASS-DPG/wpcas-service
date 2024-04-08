@@ -68,10 +68,10 @@ model AdminCompetency {
 //   @@map("admin_department")
 // }
 
-model CredentialDid{
-  id                 Int           @id @default(autoincrement())
-  authorDid String
-  schemaDid String
+model CredentialDid {
+  id            Int    @id @default(autoincrement())
+  authorDid     String
+  schemaDid     String
   schemaVersion String
 
   @@unique([schemaDid, schemaVersion])
@@ -231,6 +231,7 @@ model Role {
   competencies  RoleToCompetency[]
   Designation   Designation?       @relation(fields: [designationId], references: [id])
   designationId Int?
+  activities    String[]           @default([])
 
   @@map("roles")
 }

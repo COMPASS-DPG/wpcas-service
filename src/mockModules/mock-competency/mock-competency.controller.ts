@@ -69,6 +69,27 @@ export class MockCompetencyController {
     }
   }
 
+  @Get("competencyWithLevels")
+  @ApiOperation({ summary: "fetch all mock competencies with levels" })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: ResponseCompetencyDto,
+    isArray: true,
+  })
+  async getAllCompetenciesWithLevels(@Res() res) {
+    try {
+      const competency = await this.competencyService.findCompetenciesWithLevelNames();
+      return res.status(HttpStatus.OK).json({
+        data: competency,
+        message: "Competencies with levels successfully fetched.",
+      });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.meta.cause });
+    }
+  }
+
   @Get(":id")
   @ApiOperation({ summary: "get mock competency by id" })
   @ApiResponse({ status: HttpStatus.OK, type: ResponseCompetencyDto })

@@ -22,7 +22,94 @@ export class MockRoleService {
   }
 
   public async findAllRoles() {
-    return this.prisma.role.findMany();
+    const roles = await this.prisma.role.findMany({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        competencies: {
+          select: {
+            competency: {
+              select: {
+                id: true,
+                name: true,
+                competencyLevels: {
+                  select: {
+                    competencyLevel: {
+                      select: {
+                        id: true,
+                        name: true,
+                        levelNumber: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    const transformedRoles = this.transformRolesObject(roles);
+
+    return { roles: transformedRoles };
+  }
+
+  public async findRolesByUserId(userId: string) {
+    const user = await this.prisma.userMetadata.findUnique({
+      where: {
+        userId,
+      },
+    });
+    if (!user) {
+      throw new Error("User data not found.");
+    }
+    if (!user.designation) {
+      throw new Error("User does not have any designation");
+    }
+
+    const roles = await this.prisma.designation.findUnique({
+      where: {
+        name: user.designation,
+      },
+      select: {
+        Roles: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            competencies: {
+              select: {
+                competency: {
+                  select: {
+                    id: true,
+                    name: true,
+                    competencyLevels: {
+                      select: {
+                        competencyLevel: {
+                          select: {
+                            id: true,
+                            name: true,
+                            levelNumber: true,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if(!roles){
+      throw new Error(`No roles found for the user(designation: ${user.designation}) with id: ${userId}`);
+    }
+    const transformedRoles = this.transformRolesObject(roles.Roles);
+
+    return { roles: transformedRoles };
   }
 
   public async findRoleById(id: number) {
@@ -133,5 +220,28 @@ export class MockRoleService {
         competencyId: true,
       }
     });
+  }
+
+  public transformRolesObject(roles) {
+    const transformedRoles: any = [];
+    roles.map(async (role) => {
+      const transformedRole = {
+        id: role.id,
+        name: role.name,
+        description: role.description,
+        competency: role.competencies.map((competency) => ({
+          id: competency.competency.id,
+          name: competency.competency.name,
+          levels: competency.competency.competencyLevels.map((level) => ({
+            id: level.competencyLevel.id,
+            name: level.competencyLevel.name,
+            levelNumber: level.competencyLevel.levelNumber,
+          })),
+        })),
+      };
+      transformedRoles.push(transformedRole);
+    });
+
+    return transformedRoles;
   }
 }

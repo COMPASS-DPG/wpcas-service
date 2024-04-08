@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
   Res,
@@ -55,6 +56,48 @@ export class MockRoleController {
       return res
         .status(HttpStatus.OK)
         .json({ data: roles, message: "Successfully fetched all roles." });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.meta.cause });
+    }
+  }
+
+  @Get("formatedRoles")
+  @ApiOperation({ summary: "fetch all mock roles" })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: ResponseMockRoleDto,
+    isArray: true,
+  })
+  async getAllRolesFormated(@Res() res) {
+    try {
+      const roles = await this.roleService.findAllRoles();
+      return res
+        .status(HttpStatus.OK)
+        .json(roles);
+      
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: error.meta.cause });
+    }
+  }
+
+  @Get("userId/:id")
+  @ApiOperation({ summary: "fetch all mock roles" })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: ResponseMockRoleDto,
+    isArray: true,
+  })
+  async getAllRolesByUserId(@Res() res, @Param("id", ParseUUIDPipe) id: string) {
+    try {
+      const roles = await this.roleService.findRolesByUserId(id);
+      return res
+        .status(HttpStatus.OK)
+        .json(roles);
+      
     } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
