@@ -26,30 +26,30 @@ export class UserMetadataController {
   private readonly logger = new Logger(UserMetadataController.name);
 
   @Post("sync-user-metadata")
-  @ApiOperation({ summary: "Sync userMetadata with user org" })
+  @ApiOperation({ summary: "Sync userMetadata with user service" })
   @ApiResponse({ status: HttpStatus.CREATED, type: UserResponseMessage })
   async SyncUserDataWithFrac(@Res() res): Promise<UserResponseMessage> {
     try {
-      this.logger.log(`Initiated sync of userMetadata with user org`);
+      this.logger.log(`Initiated sync of userMetadata with user service`);
 
       const userMetadata =
         await this.userMetadataService.syncUserDataWithFrac();
 
-      this.logger.log(`Successfully sync userMetadata with user org.`);
+      this.logger.log(`Successfully sync userMetadata with user service.`);
 
       return res.status(HttpStatus.CREATED).json({
-        message: "Successfully sync userMetadata with user org.",
+        message: "Successfully sync userMetadata with user service.",
         data: userMetadata,
       });
     } catch (error) {
-      this.logger.error(`Failed to sync userMetadata with user org.`, error);
+      this.logger.error(`Failed to sync userMetadata with user service.`, error);
 
       const { errorMessage, statusCode } =
         getPrismaErrorStatusAndMessage(error);
 
       return res.status(statusCode).json({
         statusCode,
-        message: errorMessage || `Failed sync userMetadata with user org.`,
+        message: errorMessage || `Failed sync userMetadata with user service.`,
       });
     }
   }

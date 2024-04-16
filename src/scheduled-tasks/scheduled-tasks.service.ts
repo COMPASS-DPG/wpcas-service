@@ -11,6 +11,7 @@ import { isDayBeforeToday, isToday, isTomorrow } from "../utils/utils";
 import { PassbookService } from "src/external-services/passbook/passbook.service";
 import { SunbirdRcService } from "src/external-services/sunbird-rc/sunbird-rc.service";
 import { TarentoService } from "src/external-services/tarento/tarento.service";
+import { AdminCompetencyService } from "src/admin-competency/admin-competency.service";
 
 @Injectable()
 export class ScheduledTasksService {
@@ -23,7 +24,8 @@ export class ScheduledTasksService {
     private surveyScoreService: SurveyScoreService,
     private passbookService: PassbookService,
     private sunbirdRcService: SunbirdRcService,
-    private tarentoService: TarentoService
+    private tarentoService: TarentoService,
+    private adminCompetency: AdminCompetencyService
   ) {}
   private readonly logger = new Logger(ScheduledTasksService.name);
 
@@ -155,6 +157,16 @@ export class ScheduledTasksService {
 
   @Cron(process.env.FRAC_CRON_EPX ?? CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT)
   async fracSyncCron(){
+    this.logger.log(`Initialized Syncing FRAC data`);
     await this.tarentoService.formatAndSyncFracData();
+    await this.adminCompetency.syncCompetencyData();
+    this.logger.log(`Successfully synced FRAC data`);
+  }
+
+  @Cron(process.env.USER_CRON_EPX ?? CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT)
+  async userSyncCron(){
+    this.logger.log(`Initialized Syncing User data`);
+    await this.userMetadataService.syncUserDataWithFrac();
+    this.logger.log(`Successfully synced User data`);
   }
 }

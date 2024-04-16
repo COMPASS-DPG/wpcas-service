@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException, forwardRef } from "@nestjs/common";
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  forwardRef,
+} from "@nestjs/common";
 import { TimeUnitsEnum, UserRolesEnum } from "@prisma/client";
 import _ from "lodash";
 import { MockUserService } from "../mockModules/mock-user/mock-user.service";
@@ -9,15 +14,16 @@ import { UserMappingFileUploadDto } from "../survey-config/dto/create-survey-con
 import { SurveyService } from "../survey/survey.service";
 import { SurveyFormService } from "../survey-form/survey-form.service";
 import { TarentoService } from "src/external-services/tarento/tarento.service";
+import { convertToISODateTime } from "src/utils/utils";
 
 @Injectable()
 export class UserMetadataService {
   constructor(
     private prisma: PrismaService,
     private mockUser: MockUserService,
-    @Inject(forwardRef(()=>SurveyConfigService))
+    @Inject(forwardRef(() => SurveyConfigService))
     private surveyConfig: SurveyConfigService,
-    @Inject(forwardRef(()=>SurveyService))
+    @Inject(forwardRef(() => SurveyService))
     private surveyService: SurveyService,
     private surveyForm: SurveyFormService,
     private tarentoService: TarentoService
@@ -25,32 +31,64 @@ export class UserMetadataService {
 
   public async syncUserDataWithFrac() {
     // fetch all users
-    const users = await this.mockUser.findAll();
+    let users = await this.tarentoService.getAllUsers();
+    let userCount = 0;
 
     // update or create data in user metadata table
     const usersMetaDataPayload = await Promise.all(
       users.map(async (user) => {
-        const { createdAt, designation, id, role, userName, profilePicture } = user;
+        try {
+          const isAdmin = user.organisations[0]?.roles.includes("ADMIN") ?? false;
 
-        const userMetadataPayload = {
-          userId: id,
-          userName,
-          designation,
-          isNewEmployee: false,
-          dateOfJoining: createdAt,
-          isAdmin: role == _.get(UserRolesEnum, "ADMIN", "") ? true : false,
-          profilePicture
-        };
+          const designation = 
+            user.profileDetails?.professionalDetails?.length > 0 
+              ? user.profileDetails?.professionalDetails[0]?.designation 
+              : "";
+              
+          const dateOfJoining = 
+            user.profileDetails?.professionalDetails?.length > 0
+              ? user.profileDetails?.professionalDetails[0]?.doj 
+              : user.createdDate;
+              
+          const dateOfJoiningISO = await convertToISODateTime(dateOfJoining);
 
-        return await this.prisma.userMetadata.upsert({
-          where: { userId: userMetadataPayload.userId },
-          create: userMetadataPayload,
-          update: userMetadataPayload,
-        });
+          const userMetadataPayload = {
+            userId: user.id,
+            userName: user.userName,
+            designation,
+            isNewEmployee: false,
+            dateOfJoining: dateOfJoiningISO,
+            isAdmin,
+            profilePicture: user?.profilePicture ?? "",
+          };
+
+          userCount++;
+          console.log("userData: ", {
+            userName: user.userName,
+            designation: designation,
+            userCount: userCount,
+          });
+
+          // Upsert user metadata in Prisma
+          return await this.prisma.userMetadata.upsert({
+            where: { userId: userMetadataPayload.userId },
+            create: userMetadataPayload,
+            update: userMetadataPayload,
+          });
+        } catch (error) {
+          console.error(`Error upserting user metadata for user ID ${user.id}:`, error);
+          // Return null or any specific value to indicate that upsert failed for this user
+          return null;
+        }
       })
     );
 
-    return usersMetaDataPayload;
+    // Filter out any null values (failed upserts) from the results
+    const successfulUpserts = usersMetaDataPayload.filter(
+      (result) => result !== null
+    );
+
+    return successfulUpserts;
   }
 
   async createOrUpdateUserMetadata(userId: string) {
@@ -65,10 +103,19 @@ export class UserMetadataService {
       id: response.data.result?.response?.content[0]?.id,
       userName: response.data.result?.response?.content[0].userName,
       createdAt: response.data.result?.response?.content[0]?.createdDate,
-      role: (response.data.result?.response?.content[0]?.organisations[0]?.roles.indexOf("ADMIN") != -1) ? "ADMIN" : "", // user service has "roles" for every user
+      role:
+        response.data.result?.response?.content[0]?.organisations[0]?.roles.indexOf(
+          "ADMIN"
+        ) != -1
+          ? "ADMIN"
+          : "", // user service has "roles" for every user
       profilePicture: userMetadata?.profilePicture,
-      designation: response.data.result?.response?.content[0]?.profileDetails?.professionalDetails[0]?.designation,
-      dateOfJoining: response.data.result?.response?.content[0]?.profileDetails?.professionalDetails[0]?.doj
+      designation:
+        response.data.result?.response?.content[0]?.profileDetails
+          ?.professionalDetails[0]?.designation,
+      dateOfJoining:
+        response.data.result?.response?.content[0]?.profileDetails
+          ?.professionalDetails[0]?.doj,
     };
 
     const userObj = {
@@ -78,7 +125,7 @@ export class UserMetadataService {
       dateOfJoining: user.dateOfJoining,
       isAdmin: user.role == "ADMIN" ? true : false,
       designation: user.designation,
-      profilePicture: null // user service doesn't store profilePicture
+      profilePicture: null, // user service doesn't store profilePicture
     };
 
     if (!userMetadata) {
@@ -95,7 +142,7 @@ export class UserMetadataService {
             dateOfJoining: user.createdAt,
             isAdmin: user.role == UserRolesEnum.ADMIN ? true : false,
             designation: user.designation,
-            profilePicture: user.profilePicture
+            profilePicture: user.profilePicture,
           },
           select: this.metadataSelect,
         });
@@ -117,27 +164,26 @@ export class UserMetadataService {
   }
 
   async findManyUserMetadata(filter: UserMetadataFilterDto) {
-    const {
-      isAdmin,
-      isNewEmployee,
-      designation,
-      limit,
-      offset,
-    } = filter;
-    let users =  await this.prisma.userMetadata.findMany({
+    const { isAdmin, isNewEmployee, designation, limit, offset } = filter;
+    let users = await this.prisma.userMetadata.findMany({
       where: {
         isAdmin: isAdmin ?? undefined,
         isNewEmployee: isNewEmployee ?? undefined,
         designation: designation ?? undefined,
       },
-      skip: offset  ?? undefined,
+      skip: offset ?? undefined,
       take: limit ?? undefined,
       select: this.metadataSelect,
     });
-    for(const user of users){
-      const surveysToBeFilled = await this.surveyService.getSurveysToBeFilledByUser(user.userId);
-      const surveysFilled = await this.surveyService.getSurveysFilledByUser(user.userId);
-      const wpcasScore = await this.surveyForm.fetchLatestSurveyScoreByUserId(user.userId);
+    for (const user of users) {
+      const surveysToBeFilled =
+        await this.surveyService.getSurveysToBeFilledByUser(user.userId);
+      const surveysFilled = await this.surveyService.getSurveysFilledByUser(
+        user.userId
+      );
+      const wpcasScore = await this.surveyForm.fetchLatestSurveyScoreByUserId(
+        user.userId
+      );
       user["surveysToBeFilled"] = surveysToBeFilled;
       user["surveysFilled"] = surveysFilled;
       user["wpcasScore"] = wpcasScore;
@@ -225,26 +271,34 @@ export class UserMetadataService {
     return userMetadata;
   }
 
-  public async validateAndFetchUserIds(prismaClient, userIdList: Set<string>, userMapping: UserMappingFileUploadDto) {
-    const userValidationArray = [...new Set([...userMapping.assessorIds, userMapping.assesseeId])];
-  
-    const idsNotInUserIdList: string[] = userValidationArray.filter(id => !userIdList.has(id));
+  public async validateAndFetchUserIds(
+    prismaClient,
+    userIdList: Set<string>,
+    userMapping: UserMappingFileUploadDto
+  ) {
+    const userValidationArray = [
+      ...new Set([...userMapping.assessorIds, userMapping.assesseeId]),
+    ];
+
+    const idsNotInUserIdList: string[] = userValidationArray.filter(
+      (id) => !userIdList.has(id)
+    );
 
     for (const id of idsNotInUserIdList) {
       try {
         const user = await prismaClient.userMetadata.findUnique({
           where: { userId: id },
         });
-        
-        if(!user){
+
+        if (!user) {
           await this.createOrUpdateUserMetadata(id);
         }
       } catch (error) {
         throw new NotFoundException(`User with id: ${id} not found.`);
       }
     }
-  
-    return userIdList = new Set([...userIdList, ...idsNotInUserIdList]);
+
+    return (userIdList = new Set([...userIdList, ...idsNotInUserIdList]));
   }
 
   metadataSelect = {
