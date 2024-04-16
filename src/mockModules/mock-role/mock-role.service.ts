@@ -1,13 +1,8 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 import { CreateMockRoleDto, UpdateMockRoleDto } from "./dto";
 import { MockCompetencyService } from "../mock-competency/mock-competency.service";
 import { CreateCompetencyDto } from "../mock-competency/dto";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 @Injectable()
 export class MockRoleService {
@@ -68,29 +63,33 @@ export class MockRoleService {
       throw new Error("User does not have any designation");
     }
 
-    const roles = await this.prisma.designation.findUnique({
+    const response = await this.prisma.designation.findUnique({
       where: {
         name: user.designation,
       },
       select: {
-        Roles: {
+        roles: {
           select: {
-            id: true,
-            name: true,
-            description: true,
-            competencies: {
+            role: {
               select: {
-                competency: {
+                id: true,
+                name: true,
+                description: true,
+                competencies: {
                   select: {
-                    id: true,
-                    name: true,
-                    competencyLevels: {
+                    competency: {
                       select: {
-                        competencyLevel: {
+                        id: true,
+                        name: true,
+                        competencyLevels: {
                           select: {
-                            id: true,
-                            name: true,
-                            levelNumber: true,
+                            competencyLevel: {
+                              select: {
+                                id: true,
+                                name: true,
+                                levelNumber: true,
+                              },
+                            },
                           },
                         },
                       },
@@ -104,10 +103,13 @@ export class MockRoleService {
       },
     });
 
-    if(!roles){
-      throw new Error(`No roles found for the user(designation: ${user.designation}) with id: ${userId}`);
+    if (!response) {
+      throw new Error(
+        `No roles found for the user(designation: ${user.designation}) with id: ${userId}`
+      );
     }
-    const transformedRoles = this.transformRolesObject(roles.Roles);
+    const roles = response.roles.map((item) => item.role);
+    const transformedRoles = this.transformRolesObject(roles);
 
     return { roles: transformedRoles };
   }
@@ -218,7 +220,7 @@ export class MockRoleService {
       },
       select: {
         competencyId: true,
-      }
+      },
     });
   }
 

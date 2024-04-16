@@ -15,7 +15,7 @@ import {
   ResponseDesignationDto,
   UpdateDesignationDto,
 } from "./dto";
-import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 
 @Controller("designation")
 @ApiTags("mockFracService/designation")
@@ -119,6 +119,7 @@ export class MockDesignationController {
   @Post("addRoleToDesignation/:id")
   @ApiOperation({ summary: "Add a Role to mock designation." })
   @ApiResponse({ status: HttpStatus.OK, type: ResponseDesignationDto})
+  @ApiBody({ schema:{ example:{ roleId: 1 } } })
   async addRoleToDesignation(@Param("id") id: number, @Res() res, @Body() {roleId}: any) {
     try {
       const designation = await this.designationService.addRoleToDesignation(id, roleId);
