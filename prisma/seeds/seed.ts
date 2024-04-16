@@ -41,12 +41,12 @@ async function seed() {
   ]);
 }
 
-seed()
-  .catch((error) => {
-    console.log("\n\n Seeding error:--------", error);
-    process.exit(1);
-  })
-  .finally(() => {
-    console.log("\n\n Seeding stopped/completed");
-    prisma.$disconnect();
-  });
+// seed()
+//   .catch((error) => {
+//     console.log("\n\n Seeding error:--------", error);
+//     process.exit(1);
+//   })
+//   .finally(() => {
+//     console.log("\n\n Seeding stopped/completed");
+//     prisma.$disconnect();
+//   });
