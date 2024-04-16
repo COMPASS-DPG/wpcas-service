@@ -92,3 +92,18 @@ export function isDateInPast(compareDate: Date, referenceDate: Date): boolean {
   // Compare the dates
   return compareDateUTC < referenceDateUTC;
 }
+
+export function convertToISODateTime(dateString) {
+  // Create a new Date object from the input date string
+  const date = new Date(dateString);
+
+  // Check if the date is invalid
+  if (isNaN(date.getTime())) {
+      return "Invalid Date";
+  }
+
+  // Convert the Date object to ISO-8601 DateTime format
+  const isoDateTime = date.toISOString();
+
+  return isoDateTime;
+}

@@ -8,6 +8,38 @@ export class TarentoService {
   constructor(private prisma: PrismaService) {}
   private fracApiUrl = process.env.FRAC_SERVICE_URL;
 
+  async getAllUsers(): Promise<any> {
+    try {
+      const baseUrl = process.env.USER_SERVICE_URL || "";
+      if (baseUrl == "") {
+        throw new Error("User service URL not available");
+      }
+      const headers = {
+        Authorization: "bearer " + process.env.USER_SERVICE_TOKEN,
+        "Content-Type": "application/json",
+      };
+
+      const data = {
+        request: {
+          filters: {
+          },
+        },
+      };
+
+      let response = await axios.post(baseUrl, data, { headers });
+
+      if(response.data.result.response.content.lenght < 1) {
+        throw new Error("Zero users fetched.");
+      }
+
+      return response.data.result.response.content;
+    } catch (error) {
+      // Handle errors
+      console.log(error)
+      throw new Error("Failed to fetch user data from the Tarento's API");
+    }
+  }
+
   async getUser(userId: string): Promise<any> {
     try {
       const baseUrl = process.env.USER_SERVICE_URL || "";
