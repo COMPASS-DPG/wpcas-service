@@ -45,42 +45,72 @@ export class MockDesignationService {
   }
 
   async addRoleToDesignation(id: number, roleId: number) {
-    return await this.prisma.designation.update({
+    try {
+      await this.prisma.designationToRole.upsert({
+        where: {
+          designationId_roleId: {
+            designationId: id,
+            roleId: roleId,
+          },
+        },
+        update: {
+          designationId: id,
+          roleId: roleId,
+        },
+        create: {
+          designationId: id,
+          roleId: roleId,
+        },
+      });
+    } catch (error) {
+      throw new Error("Error adding role to designation.");
+    }
+
+    const designation = await this.prisma.designation.findUnique({
       where: {
         id,
-      },
-      data: {
-        Roles: {
-          connect: [{ id: roleId }],
-        },
       },
       select: {
         id: true,
         name: true,
         description: true,
-        Roles: {
-          orderBy: {
-            createdAt: "asc",
-          },
+        roles: {
           select: {
-            id: true,
-            name: true,
-            description: true,
+            role: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+              },
+            },
           },
         },
       },
     });
+
+    return {
+      id: designation?.id,
+      name: designation?.name,
+      description: designation?.description,
+      Role: designation?.roles.map((item) => item.role),
+    };
   }
 
   async findAllRolesForDesignation(designation: string) {
-    return this.prisma.designation.findUnique({
+    const result = await this.prisma.designation.findUnique({
       where: {
         name: designation,
       },
       select: {
-        Roles: true,
+        roles: {
+          select: {
+            role: true,
+          },
+        },
       },
     });
-    
+    if (!result) return { Roles: [] };
+    const roles = result.roles.map((item) => item.role);
+    return { Roles: roles };
   }
 }
