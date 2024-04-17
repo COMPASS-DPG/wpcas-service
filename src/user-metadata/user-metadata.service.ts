@@ -111,11 +111,13 @@ export class UserMetadataService {
           : "", // user service has "roles" for every user
       profilePicture: userMetadata?.profilePicture,
       designation:
-        response.data.result?.response?.content[0]?.profileDetails
-          ?.professionalDetails[0]?.designation,
+        response.data.result?.response?.content[0]?.profileDetails?.professionalDetails?.length > 0
+          ? response.data.result?.response?.content[0]?.profileDetails?.professionalDetails[0]?.designation
+          : "",
       dateOfJoining:
-        response.data.result?.response?.content[0]?.profileDetails
-          ?.professionalDetails[0]?.doj,
+        response.data.result?.response?.content[0]?.profileDetails?.professionalDetails?.length > 0
+        ? response.data.result?.response?.content[0]?.profileDetails?.professionalDetails[0]?.doj
+        : response.data.result?.response?.content[0]?.createdDate,
     };
 
     const userObj = {
@@ -139,7 +141,7 @@ export class UserMetadataService {
           where: { userId },
           data: {
             isNewEmployee: false,
-            dateOfJoining: user.createdAt,
+            dateOfJoining: user.dateOfJoining,
             isAdmin: user.role == UserRolesEnum.ADMIN ? true : false,
             designation: user.designation,
             profilePicture: user.profilePicture,
