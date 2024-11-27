@@ -22,6 +22,7 @@ export class MockRoleService {
         id: true,
         name: true,
         description: true,
+        activities: true,
         competencies: {
           select: {
             competency: {
@@ -75,6 +76,7 @@ export class MockRoleService {
                 id: true,
                 name: true,
                 description: true,
+                activities: true,
                 competencies: {
                   select: {
                     competency: {
@@ -231,6 +233,7 @@ export class MockRoleService {
         id: role.id,
         name: role.name,
         description: role.description,
+        activities: role.activities,
         competency: role.competencies.map((competency) => ({
           id: competency.competency.id,
           name: competency.competency.name,
